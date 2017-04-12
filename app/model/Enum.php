@@ -23,7 +23,7 @@ class Enum {
 			$filterParam[] = $key;
 		}
 		// order
-		$order = 'ORDER BY seq ';
+		$order = 'ORDER BY IFNULL(seq, 9999) ';
 		// get multi records
 		if ( empty($key) ) {
 			return R::find('enum', $filter.$order, $filterParam);

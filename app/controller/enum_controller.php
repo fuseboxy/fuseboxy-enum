@@ -22,7 +22,7 @@ $scaffold = array(
 	'allowDelete' => Auth::activeUserInRole('SUPER'),
 	'layoutPath' => F::config('appPath').'view/enum/layout.php',
 	'listFilter' => array('type = ?', array($_SESSION['enum_type'])),
-	'listOrder' => 'ORDER BY IFNULL(seq, 999), `key` ',
+	'listOrder' => 'ORDER BY IFNULL(seq, 9999), `key` ',
 	'listField' => array(
 		'id' => '7%',
 		'key|type' => '15%',
