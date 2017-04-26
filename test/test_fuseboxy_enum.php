@@ -258,6 +258,7 @@ class TestFuseboxyEnum extends UnitTestCase {
 		$this->assertTrue($hasRedirect);
 		// clean-up
 		$fusebox = null;
+		Auth::logout();
 		R::nuke();
 	}
 
