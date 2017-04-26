@@ -11,8 +11,14 @@ class TestFuseboxyEnum extends UnitTestCase {
 		if ( !class_exists('F') ) {
 			include __DIR__.'/utility-enum/framework/1.0.3/F.php';
 		}
-		if ( !class_exists('Auth') ) {
+		if ( !class_exists('Enum') ) {
 			include dirname(__DIR__).'/app/model/Enum.php';
+		}
+		if ( !class_exists('Auth') ) {
+			include __DIR__.'/utility-enum/model/Auth.php';
+		}
+		if ( !class_exists('Sim') ) {
+			include __DIR__.'/utility-enum/model/Sim.php';
 		}
 		if ( !class_exists('R') ) {
 			include __DIR__.'/utility-enum/redbeanphp/4.3.3/rb.php';
@@ -206,6 +212,52 @@ class TestFuseboxyEnum extends UnitTestCase {
 		$this->assertFalse( isset($arr['this-is-c']) );
 		$this->assertTrue ( $arr['this-is-d'] == 'This is D' );
 		// clean-up
+		R::nuke();
+	}
+
+
+	function test__controller__index() {
+		global $fusebox;
+		Framework::createAPIObject();
+		Framework::loadConfig();
+		Framework::setMyself();
+		$fusebox->action = 'index';
+		// create dummy user
+		$bean = R::dispense('user');
+		$bean->import(array(
+			'username' => 'foobar',
+			'role'     => 'USER',
+		));
+		$id = R::store($bean);
+		$this->assertTrue( !empty($id) );
+		// only accessible after login
+		try {
+			$hasRedirect = false;
+			ob_start();
+			include dirname(__DIR__).'/app/controller/enum_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$output = $e->getMessage();
+			$hasRedirect = ( $e->getCode() == Framework::FUSEBOX_REDIRECT );
+			$this->assertPattern('/fuseaction=auth/i', $e->getMessage());
+		}
+		$this->assertTrue($hasRedirect);
+		// only accessible by super or admin
+		$loginResult = Auth::login('foobar', Auth::SKIP_PASSWORD_CHECK);
+		$this->assertTrue( $loginResult );
+		try {
+			$hasRedirect = false;
+			ob_start();
+			include dirname(__DIR__).'/app/controller/enum_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$output = $e->getMessage();
+			$hasRedirect = ( $e->getCode() == Framework::FUSEBOX_REDIRECT );
+			$this->assertPattern("/fuseaction={$fusebox->config['defaultCommand']}/i", $e->getMessage());
+		}
+		$this->assertTrue($hasRedirect);
+		// clean-up
+		$fusebox = null;
 		R::nuke();
 	}
 
