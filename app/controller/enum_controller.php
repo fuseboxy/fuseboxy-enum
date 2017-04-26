@@ -37,7 +37,6 @@ $scaffold = array(
 		'remark' => array('placeholder' => 'Remark'),
 		'seq' => array('placeholder' => 'Seq')
 	),
-	'uploadBaseUrl' => F::config('baseUrl').'data/upload/',
 	'writeLog' => true,
 );
 
