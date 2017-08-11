@@ -216,7 +216,7 @@ class TestFuseboxyEnum extends UnitTestCase {
 	}
 
 
-	function test__controller__index() {
+	function test__enumController__index() {
 		global $fusebox;
 		Framework::createAPIObject();
 		Framework::loadConfig();
