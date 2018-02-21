@@ -1,8 +1,7 @@
 <?php /*
 <fusedoc>
-	<history version="1.0">
-		- first commit
-	</history>
+	<history version="1.0">first commit</history>
+	<history version="1.0.1">order by seq then by key</history>
 </fusedoc>
 */
 class Enum {
@@ -29,7 +28,7 @@ class Enum {
 			$filterParam[] = $key;
 		}
 		// order
-		$order = 'ORDER BY IFNULL(seq, 9999) ';
+		$order = 'ORDER BY IFNULL(`seq`, 9999), `key` ASC ';
 		// get multi records
 		if ( empty($key) ) {
 			return R::find('enum', $filter.$order, $filterParam);
