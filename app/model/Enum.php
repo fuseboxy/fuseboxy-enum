@@ -1,36 +1,37 @@
 <?php /*
 <fusedoc>
-	<history version="1.0">first commit</history>
-	<history version="1.0.1">order by seq then by key</history>
+	<history version="1.0">
+		- first commit
+	</history>
+	<history version="1.1">
+		- fix bug : order by seq then by key
+		- apply LIKE when comparing [type] and [key] in order to allow getting records by wildcard (%)
+	</history>
 </fusedoc>
 */
 class Enum {
 
 
-	private static $error;
-
-
 	// get (latest) error message
-	public static function error() {
-		return self::$error;
-	}
+	private static $error;
+	public static function error() { return self::$error; }
 
 
 	// get multiple enum beans by type
 	// get single enum bean by type & key
 	public static function get($type, $key=null, $all=false) {
 		// filter
-		$filter = '`type` = ? ';
+		$filter = '`type` LIKE ? ';
 		if ( empty($all) ) $filter .= 'AND IFNULL(disabled, 0) = 0 ';
 		$filterParam = array($type);
 		if ( !empty($key) ) {
-			$filter .= "AND `key` = ? ";
+			$filter .= "AND `key` LIKE ? ";
 			$filterParam[] = $key;
 		}
 		// order
 		$order = 'ORDER BY IFNULL(`seq`, 9999), `key` ASC ';
 		// get multi records
-		if ( empty($key) ) {
+		if ( empty($key) or stripos($key, '%') !== false ) {
 			return R::find('enum', $filter.$order, $filterParam);
 		// or single value
 		} else {
