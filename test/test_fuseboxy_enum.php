@@ -135,6 +135,38 @@ class TestFuseboxyEnum extends UnitTestCase {
 	}
 
 
+	function test__Enum__getFirst() {
+		// create dummy records
+		$keys = array('this-is-a', 'this-is-b', 'this-is-c', 'this-is-d');
+		$values = array('This is A', 'This is B', 'This is C', 'This is D');
+		$remarks = array('A', 'BB', 'CCC', 'DDDD');
+		foreach ( $keys as $i => $key ) {
+			$bean = R::dispense('enum');
+			$bean->import(array(
+				'type'     => 'UNIT_TEST',
+				'key'      => $key,
+				'value'    => $values[$i],
+				'remark'   => $remarks[$i],
+				'seq'      => $i,
+				'disabled' => ( $key == 'this-is-a' ),
+			));
+			$id = R::store($bean);
+			$this->assertTrue( !empty($id) );
+		}
+		// invalid type
+		$bean = Enum::getFirst('FOO_BAR');
+		$this->assertTrue( empty($bean->id) );
+		// valid type
+		$bean = Enum::getFirst('UNIT_TEST');
+		$this->assertTrue( $bean->key == 'this-is-b' );
+		// valid type (include disabled items)
+		$bean = Enum::getFirst('UNIT_TEST', true);
+		$this->assertTrue( $bean->key == 'this-is-a' );
+		// clean-up
+		R::nuke();
+	}
+
+
 	function test__Enum__getArray() {
 		// create dummy records
 		$keys = array('this-is-a', 'this-is-b', 'this-is-c', 'this-is-d');
