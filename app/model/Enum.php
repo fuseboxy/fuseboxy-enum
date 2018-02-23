@@ -6,6 +6,7 @@
 	<history version="1.1">
 		- fix bug : order by seq then by key
 		- apply LIKE when comparing [type] and [key] in order to allow getting records by wildcard (%)
+		- apply getFirst() method
 	</history>
 </fusedoc>
 */
@@ -37,6 +38,13 @@ class Enum {
 		} else {
 			return R::findOne('enum', $filter.$order, $filterParam);
 		}
+	}
+
+
+	// get first item of specific type
+	public static function getFirst($type, $all=false) {
+		$beans = self::get($type, null, $all);
+		return !empty($beans) ? array_shift($beans) : R::dispense('enum');
 	}
 
 
