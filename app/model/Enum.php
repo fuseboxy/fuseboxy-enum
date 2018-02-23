@@ -5,7 +5,7 @@
 	</history>
 	<history version="1.1">
 		- fix bug : order by seq then by key
-		- apply LIKE when comparing [type] and [key] in order to allow getting records by wildcard (%)
+		- modify get() and getArray() methods to compare [type] and [key] by LIKE to allow getting records by wildcard (%)
 		- apply getFirst() method
 	</history>
 </fusedoc>
@@ -32,7 +32,7 @@ class Enum {
 		// order
 		$order = 'ORDER BY IFNULL(`seq`, 9999), `key` ASC ';
 		// get multi records
-		if ( empty($key) or stripos($key, '%') !== false ) {
+		if ( empty($key) or self::__hasWildcard($key) ) {
 			return R::find('enum', $filter.$order, $filterParam);
 		// or single value
 		} else {
@@ -55,9 +55,16 @@ class Enum {
 
 
 	// get multiple enum records as array
-	public static function getArray($type) {
-		$beans = self::get($type);
-		return self::toArray($beans);
+	public static function getArray($type, $key=null, $all=false) {
+		$beans = self::get($type, $key, $all);
+		// check if multiple or single
+		if ( empty($key) or self::__hasWildcard($key) ) {
+			return self::toArray($beans);
+		} elseif ( !empty($beans->id) ) {
+			return array( $beans->key => $beans->value );
+		} else {
+			return array();
+		}
 	}
 
 
@@ -80,4 +87,10 @@ class Enum {
 	}
 
 
-}
+	// check is there any sql wildcard
+	private static function __hasWildcard($str) {
+		return ( stripos($str, '%') !== false );
+	}
+
+
+} // Enum

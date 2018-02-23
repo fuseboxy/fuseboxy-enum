@@ -169,8 +169,8 @@ class TestFuseboxyEnum extends UnitTestCase {
 
 	function test__Enum__getArray() {
 		// create dummy records
-		$keys = array('this-is-a', 'this-is-b', 'this-is-c', 'this-is-d');
-		$values = array('This is A', 'This is B', 'This is C', 'This is D');
+		$keys = array('this-is-a', 'this-is-b', 'this-is-c', 'i-am-d');
+		$values = array('This is A', 'This is B', 'This is C', 'I am D');
 		$remarks = array('A', 'BB', 'CCC', 'DDDD');
 		foreach ( $keys as $i => $key ) {
 			$bean = R::dispense('enum');
@@ -193,6 +193,24 @@ class TestFuseboxyEnum extends UnitTestCase {
 		$this->assertTrue ( count($arr) == 3 );
 		$this->assertTrue ( isset($arr['this-is-a']) and $arr['this-is-a'] == 'This is A' );
 		$this->assertFalse( isset($arr['this-is-c']) );
+		// valid type (including disabled)
+		$arr = Enum::getArray('UNIT_TEST', null, true);
+		// get by wildcard (type only)
+		$arr = Enum::getArray('U%T');
+		$this->assertTrue ( count($arr) == 3 );
+		$this->assertTrue ( isset($arr['this-is-a']) and $arr['this-is-a'] == 'This is A' );
+		$this->assertFalse( isset($arr['this-is-c']) );
+		// get by wildcard (type & key)
+		$arr = Enum::getArray('UNIT_TEST', 'this-is-%');
+		$this->assertTrue( count($arr) == 2 );
+		$arr = Enum::getArray('UNIT_TEST', 'this-is-%', true);
+		$this->assertTrue( count($arr) == 3 );
+		$arr = Enum::getArray('UNIT_TEST', 'this-is-a');
+		$this->assertTrue( count($arr) == 1 );
+		$arr = Enum::getArray('UNIT_TEST', 'this-is-c');
+		$this->assertTrue( count($arr) == 0 );
+		$arr = Enum::getArray('UNIT_TEST', 'this-is-c', true);
+		$this->assertTrue( count($arr) == 1 );
 		// clean-up
 		R::nuke();
 	}
