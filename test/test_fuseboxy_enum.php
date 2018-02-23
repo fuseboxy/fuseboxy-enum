@@ -29,8 +29,8 @@ class TestFuseboxyEnum extends UnitTestCase {
 
 	function test__Enum__get() {
 		// create dummy records
-		$keys = array('this-is-a', 'this-is-b', 'this-is-c', 'this-is-d');
-		$values = array('This is A', 'This is B', 'This is C', 'This is D');
+		$keys = array('this-is-a', 'she-is-b', 'this-is-c', 'he-is-d');
+		$values = array('This is A', 'She is B', 'This is C', 'He is D');
 		$remarks = array('A', 'BB', 'CCC', 'DDDD');
 		foreach ( $keys as $i => $key ) {
 			$bean = R::dispense('enum');
@@ -64,9 +64,9 @@ class TestFuseboxyEnum extends UnitTestCase {
 		$beans = Enum::get('UNIT_TEST', null, true);
 		$this->assertTrue( count($beans) == 4 );
 		// valid type & key (active only)
-		$bean = Enum::get('UNIT_TEST', 'this-is-b');
+		$bean = Enum::get('UNIT_TEST', 'she-is-b');
 		$this->assertTrue( !empty($bean->id) );
-		$this->assertTrue( $bean->value == 'This is B' );
+		$this->assertTrue( $bean->value == 'She is B' );
 		$this->assertTrue( $bean->remark == 'BB' );
 		// valid type & key (excluding disabled)
 		$bean = Enum::get('UNIT_TEST', 'this-is-c');
@@ -76,6 +76,26 @@ class TestFuseboxyEnum extends UnitTestCase {
 		$this->assertTrue( !empty($bean->id) );
 		$this->assertTrue( $bean->value == 'This is C' );
 		$this->assertTrue( $bean->remark == 'CCC' );
+		// check get by wildcard
+		$beans = Enum::get('UNIT_TEST', 'this-is-%');
+		$this->assertTrue( count($beans) == 1 );
+		$beans = Enum::get('UNIT_TEST', 'this-is-%', true);
+		$this->assertTrue( count($beans) == 2 );
+		$beans = Enum::get('U%T');
+		$this->assertTrue( count($beans) == 3 );
+		// check sequence (order by seq when specified)
+		$beans = Enum::get('UNIT_TEST', null, true);
+		$firstBean = array_shift($beans);
+		$lastBean = array_pop($beans);
+		$this->assertTrue( $firstBean->key == 'this-is-a' );
+		$this->assertTrue( $lastBean->key == 'he-is-d' );
+		// check sequence (order by seq then by key)
+		R::exec('UPDATE `enum` SET `seq` = 0');
+		$beans = Enum::get('UNIT_TEST', null, true);
+		$firstBean = array_shift($beans);
+		$lastBean = array_pop($beans);
+		$this->assertTrue( $firstBean->key == 'he-is-d' );
+		$this->assertTrue( $lastBean->key == 'this-is-c' );
 		// clean-up
 		R::nuke();
 	}
