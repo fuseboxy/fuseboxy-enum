@@ -1,15 +1,4 @@
-<?php /*
-<fusedoc>
-	<history version="1.0">
-		- first commit
-	</history>
-	<history version="1.1">
-		- fix bug : order by seq then by key
-		- modify get() and getArray() methods to compare [type] and [key] by LIKE to allow getting records by wildcard (%)
-		- apply getFirst() method
-	</history>
-</fusedoc>
-*/
+<?php
 class Enum {
 
 
