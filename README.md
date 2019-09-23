@@ -6,3 +6,5 @@ Fuseboxy Enum
 Fuseboxy framework core
 RedBeanPHP (3.x or higher)
 Session enabled
+fuseboxy layout
+fuseboxy scaffold
