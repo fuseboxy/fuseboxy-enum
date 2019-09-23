@@ -35,5 +35,5 @@ include F::config('appPath').'view/global/tab.php';
 $layout['content'] = ob_get_clean();
 
 
-// wrap by global layout
+// global layout
 include F::config('appPath').'view/global/layout.php';
