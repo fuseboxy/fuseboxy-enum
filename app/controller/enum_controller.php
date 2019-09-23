@@ -4,14 +4,14 @@ F::redirect(F::config('defaultCommand'), !Auth::activeUserInRole('SUPER,ADMIN'))
 
 
 // default type
-if ( !isset($_SESSION['enum_type']) ) {
-	$_SESSION['enum_type'] = R::getCell('SELECT type FROM enum ORDER BY type');
+if ( !isset($_SESSION['enumController__enumType']) ) {
+	$_SESSION['enumController__enumType'] = R::getCell('SELECT type FROM enum ORDER BY type');
 }
 
 
 // change selected type (pass by url from layout)
 if ( isset($arguments['type']) ) {
-	$_SESSION['enum_type'] = $arguments['type'];
+	$_SESSION['enumController__enumType'] = $arguments['type'];
 }
 
 
@@ -21,7 +21,7 @@ $scaffold = array(
 	'editMode' => 'inline',
 	'allowDelete' => Auth::activeUserInRole('SUPER'),
 	'layoutPath' => F::config('appPath').'view/enum/layout.php',
-	'listFilter' => array('type = ?', array($_SESSION['enum_type'])),
+	'listFilter' => array('type = ?', array($_SESSION['enumController__enumType'])),
 	'listOrder' => 'ORDER BY IFNULL(seq, 9999), `key` ',
 	'listField' => array(
 		'id' => '7%',
@@ -31,7 +31,7 @@ $scaffold = array(
 	),
 	'fieldConfig' => array(
 		'id' => array(),
-		'type' => array('placeholder' => 'Type', 'readonly' => !Auth::activeUserInRole('SUPER'), 'default' => $_SESSION['enum_type']),
+		'type' => array('placeholder' => 'Type', 'readonly' => !Auth::activeUserInRole('SUPER'), 'default' => $_SESSION['enumController__enumType']),
 		'key' => array('placeholder' => 'Key'),
 		'value' => array('placeholder' => 'Value'),
 		'remark' => array('placeholder' => 'Remark'),

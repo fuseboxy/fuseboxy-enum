@@ -14,7 +14,7 @@ foreach ( $types as $t ) {
 	$tabLayout['nav'][] = array(
 		'name' => ucwords( str_replace('_', ' ', strtolower($t) ) ),
 		'url' => F::url("{$fusebox->controller}&type={$t}"),
-		'active' => ( !empty($_SESSION['enum_type']) and $_SESSION['enum_type'] == $t )
+		'active' => ( !empty($_SESSION['enumController__enumType']) and $_SESSION['enumController__enumType'] == $t )
 	);
 }
 
@@ -23,7 +23,7 @@ foreach ( $types as $t ) {
 $tabLayout['nav'][] = array(
 	'name' => '<em class="text-muted">+ New Setting</em>',
 	'url' => F::url("{$fusebox->controller}&type=(new)"),
-	'active' => ( empty($_SESSION['enum_type']) or $_SESSION['enum_type'] == '(new)' )
+	'active' => ( empty($_SESSION['enumController__enumType']) or $_SESSION['enumController__enumType'] == '(new)' )
 );
 
 
