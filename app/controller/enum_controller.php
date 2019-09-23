@@ -42,5 +42,4 @@ $scaffold = array(
 
 
 // component
-$layout['width'] = 'full';
 include 'scaffold_controller.php';
