@@ -37,7 +37,7 @@ $scaffold = array(
 		'remark' => array('placeholder' => 'Remark'),
 		'seq' => array('placeholder' => 'Seq')
 	),
-	'writeLog' => true,
+	'writeLog' => class_exists('Log'),
 );
 
 
