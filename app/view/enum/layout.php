@@ -5,7 +5,7 @@ $tabLayout = array(
 	'position' => 'left',
 	'header' => '<h3>Settings</h3>',
 	'nav' => call_user_func(function(){
-		$menu = array();
+		$menus = array();
 		// existing types
 		$types = R::getCol('SELECT DISTINCT type FROM enum ORDER BY type');
 		foreach ( $types as $item ) {
