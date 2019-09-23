@@ -9,7 +9,7 @@ if ( !isset($_SESSION['enumController__enumType']) ) {
 }
 
 
-// change selected type (pass by url from layout)
+// change selected type
 if ( isset($arguments['type']) ) {
 	$_SESSION['enumController__enumType'] = $arguments['type'];
 }
