@@ -10,11 +10,12 @@ $tabLayout = array(
 
 // tab : all existing types
 $types = R::getCol('SELECT DISTINCT type FROM enum ORDER BY type');
-foreach ( $types as $t ) {
+foreach ( $types as $item ) {
 	$tabLayout['nav'][] = array(
-		'name' => ucwords( str_replace('_', ' ', strtolower($t) ) ),
-		'url' => F::url("{$fusebox->controller}&type={$t}"),
-		'active' => ( !empty($_SESSION['enumController__enumType']) and $_SESSION['enumController__enumType'] == $t )
+		'name' => ucwords( str_replace('_', ' ', strtolower($item) ) ),
+		'url' => F::url("{$fusebox->controller}&type={$item}"),
+		'active' => ( !empty($_SESSION['enumController__enumType']) and $_SESSION['enumController__enumType'] == $item ),
+		'remark' => R::count('enum', 'type = ? AND disabled = 0', array($item)),
 	);
 }
 
