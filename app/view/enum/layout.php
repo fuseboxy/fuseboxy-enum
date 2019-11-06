@@ -1,4 +1,8 @@
 <?php
+// breadcrumb
+$arguments['breadcrumb'] = array('Settings', ucwords( str_replace('_', ' ', strtolower($_SESSION['enumController__enumType']) ) ) );
+
+
 // tab layout config
 $tabLayout = array(
 	'style' => 'tabs',
