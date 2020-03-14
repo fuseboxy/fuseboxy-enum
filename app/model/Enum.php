@@ -82,4 +82,4 @@ class Enum {
 	}
 
 
-} // Enum
+} // class
