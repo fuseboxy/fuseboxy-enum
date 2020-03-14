@@ -20,7 +20,7 @@ $scaffold = array(
 	'beanType' => 'enum',
 	'editMode' => 'inline',
 	'allowDelete' => Auth::activeUserInRole('SUPER'),
-	'layoutPath' => F::config('appPath').'view/enum/layout.php',
+	'layoutPath' => F::appPath('view/enum/layout.php'),
 	'listFilter' => array('type = ?', array($_SESSION['enumController__enumType'])),
 	'listOrder' => 'ORDER BY IFNULL(seq, 9999), `key` ',
 	'listField' => array(
@@ -42,4 +42,4 @@ $scaffold = array(
 
 
 // component
-include 'scaffold_controller.php';
+include F::appPath('controller/scaffold_controller.php');
