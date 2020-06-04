@@ -10,14 +10,17 @@ $tabLayout = array(
 	'header' => '<h3>Settings</h3>',
 	'nav' => call_user_func(function(){
 		$menus = array();
-		// existing types
-		$types = R::getCol('SELECT DISTINCT type FROM enum ORDER BY type');
+		// get all types
+		$types = array_map(function($item){
+			return $item['type'];
+		}, ORM::query('SELECT DISTINCT type FROM enum ORDER BY type'));
+		// each type
 		foreach ( $types as $item ) {
 			$menus[] = array(
 				'name' => ucwords( str_replace('_', ' ', strtolower($item) ) ),
 				'url' => F::url( F::command('controller').'&type='.$item ),
 				'active' => ( !empty($_SESSION['enumController__enumType']) and $_SESSION['enumController__enumType'] == $item ),
-				'remark' => R::count('enum', 'type = ? AND disabled = 0', array($item)),
+				'remark' => ORM::count('enum', 'type = ? AND disabled = 0', array($item)),
 			);
 		}
 		// new type
