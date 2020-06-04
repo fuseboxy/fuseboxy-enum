@@ -5,7 +5,7 @@ F::redirect(F::config('defaultCommand'), !Auth::activeUserInRole('SUPER,ADMIN'))
 
 // default type
 if ( !isset($_SESSION['enumController__enumType']) ) {
-	$_SESSION['enumController__enumType'] = R::getCell('SELECT type FROM enum ORDER BY type');
+	$_SESSION['enumController__enumType'] = ORM::first('enum', 'ORDER BY type')->type;
 }
 
 

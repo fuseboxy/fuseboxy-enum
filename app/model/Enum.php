@@ -22,18 +22,25 @@ class Enum {
 		$order = 'ORDER BY IFNULL(`seq`, 9999), `key` ASC ';
 		// get multi records
 		if ( empty($key) or self::__hasWildcard($key) ) {
-			return R::find('enum', $filter.$order, $filterParam);
+			$result = ORM::get('enum', $filter.$order, $filterParam);
 		// or single value
 		} else {
-			return R::findOne('enum', $filter.$order, $filterParam);
+			$result = ORM::first('enum', $filter.$order, $filterParam);
 		}
+		// validation
+		if ( $result === false ) {
+			self::$error = ORM::error();
+			return false;
+		}
+		// done!
+		return $result;
 	}
 
 
 	// get first item of specific type
 	public static function getFirst($type, $all=false) {
 		$beans = self::get($type, null, $all);
-		return !empty($beans) ? array_shift($beans) : R::dispense('enum');
+		return !empty($beans) ? array_shift($beans) : ORM::new('enum');
 	}
 
 
