@@ -24,13 +24,13 @@ $scaffold = array(
 	'listFilter' => array('type = ?', array($_SESSION['enumController__enumType'])),
 	'listOrder' => 'ORDER BY IFNULL(seq, 9999), `key` ',
 	'listField' => array(
-		'id' => '5%',
+		'id' => '60',
 		'key|type' => '15%',
 		'value|remark' => '50%',
-		'seq' => '7%'
+		'seq' => '70'
 	),
 	'fieldConfig' => array(
-		'id' => array(),
+		'id',
 		'type' => array('placeholder' => true, 'readonly' => !Auth::activeUserInRole('SUPER'), 'default' => $_SESSION['enumController__enumType']),
 		'key' => array('placeholder' => true),
 		'value' => array('placeholder' => true),
