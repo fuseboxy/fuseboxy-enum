@@ -1,6 +1,6 @@
 <?php
 F::redirect('auth', !Auth::user());
-F::error('Access Denied', !Auth::activeUserInRole('SUPER,ADMIN'));
+F::error('Forbidden', !Auth::activeUserInRole('SUPER,ADMIN'));
 
 
 // default type & retain selected type
