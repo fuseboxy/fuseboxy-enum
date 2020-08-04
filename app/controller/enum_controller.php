@@ -1,6 +1,6 @@
 <?php
 F::redirect('auth', !Auth::user());
-F::error('Forbidden', !Auth::activeUserInRole('SUPER,ADMIN'));
+F::error('Forbidden', !Auth::userInRole('SUPER,ADMIN'));
 
 
 // default type & retain selected type
@@ -12,7 +12,7 @@ if ( isset($arguments['type']) ) $_SESSION['enumController__enumType'] = $argume
 $scaffold = array(
 	'beanType' => 'enum',
 	'editMode' => 'inline',
-	'allowDelete' => Auth::activeUserInRole('SUPER'),
+	'allowDelete' => Auth::userInRole('SUPER'),
 	'layoutPath' => F::appPath('view/enum/layout.php'),
 	'listFilter' => array('type = ?', array($_SESSION['enumController__enumType'])),
 	'listOrder' => 'ORDER BY IFNULL(seq, 9999), `key` ',
@@ -24,7 +24,7 @@ $scaffold = array(
 	),
 	'fieldConfig' => array(
 		'id',
-		'type' => array('placeholder' => true, 'readonly' => !Auth::activeUserInRole('SUPER'), 'default' => $_SESSION['enumController__enumType']),
+		'type' => array('placeholder' => true, 'readonly' => !Auth::userInRole('SUPER'), 'default' => $_SESSION['enumController__enumType']),
 		'key' => array('placeholder' => true),
 		'value' => array('placeholder' => true),
 		'remark' => array('placeholder' => true),
