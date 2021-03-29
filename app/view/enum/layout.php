@@ -26,7 +26,7 @@ $tabLayout = array(
 		// new type
 		$menus[] = array(
 			'name' => '+ New Setting',
-			'url' => F::url( F::command('controller').'&type' ),
+			'url' => F::url( F::command('controller').'&type=' ),
 			'active' => empty($_SESSION['enumController__enumType']),
 			'linkClass' => 'font-italic text-muted',
 		);
