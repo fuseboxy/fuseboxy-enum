@@ -7,8 +7,41 @@ class Enum {
 	public static function error() { return self::$error; }
 
 
-	// get multiple enum beans by type
-	// get single enum bean by type & key
+
+
+	/**
+	<fusedoc>
+		<description>
+			get multiple items by type
+			get multiple items by type & key-with-wildcard
+			get single item by type & key
+		</description>
+		<io>
+			<in>
+				<string name="$type" />
+				<string name="$key" optional="yes" example="home-applicance|home-%" />
+				<boolean name="$all" optional="yes" default="false" comments="include disabled items when true" />
+			</in>
+			<out>
+				<!-- multiple -->
+				<structure name="~return~" optional="yes">
+					<object name="~id~">
+						<string name="type" example="PRODUCT_CATEGORY" />
+						<string name="key" example="home-appliance" />
+						<string name="value" example="Home Appliances" />
+						<string name="remark" />
+					</object>
+				</structure>
+				<!-- single -->
+				<object name="~return~">
+					<string name="type" />
+					<string name="key" />
+					<string name="value" />
+					<string name="remark" />
+				</object>
+			</out>
+		</io>
+	*/
 	public static function get($type, $key=null, $all=false) {
 		// filter
 		$filter = '`type` LIKE ? ';
@@ -37,20 +70,82 @@ class Enum {
 	}
 
 
-	// get first item of specific type
+
+
+	/**
+	<fusedoc>
+		<description>
+			get first item of specific type
+		</description>
+		<io>
+			<in>
+				<string name="$type" />
+				<boolean name="$all" optional="yes" default="false" comments="include disabled items when true" />
+			</in>
+			<out>
+				<object name="~return~">
+					<string name="type" />
+					<string name="key" />
+					<string name="value" />
+					<string name="remark" />
+				</object>
+			</out>
+		</io>
+	</fusedoc>
+	*/
 	public static function getFirst($type, $all=false) {
 		$beans = self::get($type, null, $all);
 		return !empty($beans) ? array_shift($beans) : ORM::new('enum');
 	}
 
 
-	// get disabled items as well
+
+
+	/**
+	<fusedoc>
+		<description>
+			get all items (included disabled) of specific type
+		</description>
+		<io>
+			<in>
+			</in>
+			<out>
+				<structure name="~return~">
+					<string name="type" />
+					<string name="key" />
+					<string name="value" />
+					<string name="remark" />
+				</object>
+			</out>
+		</io>
+	</fusedoc>
+	*/
 	public static function getAll($type, $key=null) {
 		return self::get($type, $key, true);
 	}
 
 
-	// get multiple enum records as array
+
+
+	/**
+	<fusedoc>
+		<description>
+			get multiple items as an array
+		</description>
+		<io>
+			<in>
+				<string name="$type" />
+				<string name="$key" optional="yes" comments="supposed to have wildcard" />
+				<boolean name="$all" optional="yes" default="false" comments="include disabled items when true" />
+			</in>
+			<out>
+				<structure name="~return~">
+					<string name="~enumKey~" value="~enumValue~" />
+				</structure>
+			</out>
+		</io>
+	</fusedoc>
+	*/
 	public static function getArray($type, $key=null, $all=false) {
 		$beans = self::get($type, $key, $all);
 		// check if multiple or single
@@ -64,7 +159,25 @@ class Enum {
 	}
 
 
-	// get specific enum value
+
+
+	/**
+	<fusedoc>
+		<description>
+			get value of specific enum item
+		</description>
+		<io>
+			<in>
+				<string name="$type" />
+				<string name="$key" />
+				<boolean name="$returnKeyIfNotFound" optional="yes" default="true" comments="return empty string otherwise" />
+			</in>
+			<out>
+				<string name="~return~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
 	public static function getValue($type, $key, $returnKeyIfNotFound=true) {
 		$result = self::get($type, $key);
 		if ( empty($result->id) ) {
@@ -75,7 +188,30 @@ class Enum {
 	}
 
 
-	// transform multiple enum records to array
+
+
+	/**
+	<fusedoc>
+		<description>
+			convert multiple enum beans to array
+		</description>
+		<io>
+			<in>
+				<structure name="$beans">
+					<string name="type" />
+					<string name="key" />
+					<string name="value" />
+					<string name="remark" />
+				</structure>
+			</in>
+			<out>
+				<structure name="~return~">
+					<string name="~key~" value="~value~" />
+				</structure>
+			</out>
+		</io>
+	</fusedoc>
+	*/
 	public static function toArray($beans) {
 		$result = array();
 		foreach ( $beans as $b ) $result[$b->key] = $b->value;
@@ -83,7 +219,23 @@ class Enum {
 	}
 
 
-	// check is there any sql wildcard
+
+
+	/**
+	<fusedoc>
+		<description>
+			check whether the string has SQL wildcard character
+		</description>
+		<io>
+			<in>
+				<string name="$str" example="home-%" />
+			</in>
+			<out>
+				<boolean name="~return~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
 	private static function __hasWildcard($str) {
 		return ( stripos($str, '%') !== false );
 	}
