@@ -10,10 +10,11 @@ class Enum {
 
 
 	// alias methods (for backward compatibility)
-	public static function getAll  ($type, $key=null)                       { return self::all($type, $key); }
-	public static function getArray($type, $key=null, $all=false)           { return self::array($type, $key, $all); }
-	public static function getFirst($type, $all=false)                      { return self::first($type, $all); }
-	public static function getValue($type, $key, $returnKeyIfNotFound=true) { return self::value($type, $key, $returnKeyIfNotFound); }
+	public static function getAll   ($type, $key=null)                       { return self::all($type, $key); }
+	public static function getArray ($type, $key=null, $all=false)           { return self::array($type, $key, $all); }
+	public static function getFirst ($type, $all=false)                      { return self::first($type, $all); }
+	public static function getRemark($type, $key)                           { return self::remark($type, $key); }
+	public static function getValue ($type, $key, $returnKeyIfNotFound=true) { return self::value($type, $key, $returnKeyIfNotFound); }
 
 
 
@@ -187,6 +188,31 @@ class Enum {
 	*/
 	private static function hasWildcard($str) {
 		return ( stripos($str, '%') !== false );
+	}
+
+
+
+
+	/**
+	<fusedoc>
+		<description>
+			get remark of specific enum item
+			===> simply return empty when not found
+		</description>
+		<io>
+			<in>
+				<string name="$type" />
+				<string name="$key" />
+			</in>
+			<out>
+				<string name="~return~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function remark($type, $key) {
+		$result = self::get($type, $key);
+		return $result->remark;
 	}
 
 
