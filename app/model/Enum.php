@@ -23,25 +23,63 @@ class Enum {
 	<fusedoc>
 		<description>
 			get all items (included disabled) of specific type
+			load from cache when available
 		</description>
 		<io>
 			<in>
+				<!-- cache -->
+				<structure name="__enum__" scope="$GLOBALS" optional="yes">
+					<structure name="~type~">
+						<object name="~key~" />
+					</structure>
+				</structure>
+				<!-- parameter -->
 				<string name="$type" />
-				<
 			</in>
 			<out>
+				<!-- cache -->
+				<structure name="__enum__" scope="$GLOBALS">
+					<structure name="~type~">
+						<object name="~key~" />
+					</structure>
+				</structure>
+				<!-- return value -->
 				<structure name="~return~">
+					<number name="id" />
 					<string name="type" />
 					<string name="key" />
 					<string name="value" />
 					<string name="remark" />
+					<boolean name="disabled" />
 				</object>
 			</out>
 		</io>
 	</fusedoc>
 	*/
 	public static function all($type) {
-		return self::get($type, null, true);
+		// create cache container (when necessary)
+		if ( !isset($GLOBALS['__enum__']) ) $GLOBALS['__enum__'] = array();
+		// load from database (when necessary)
+		if ( !isset($GLOBALS['__enum__'][$type]) ) {
+			$data = ORM::get('enum', ' `type` LIKE ? ORDER BY IFNULL(`seq`, 99999), `key` ASC ', [ $type ]);
+			// validation
+			if ( $data === false ) {
+				self::$error = ORM::error();
+				return false;
+			}
+			// put into cache
+			// ===> change key from {enum-id} to {enum-key}
+			foreach ( $data as $id => $item ) {
+				if ( !isset($GLOBALS['__enum__'][$item->type]) ) $GLOBALS['__enum__'][$item->type] = array();
+				$GLOBALS['__enum__'][$item->type][$item->key] = $item;
+			}
+		}
+		// if still not found
+		// ===> type not found in database
+		// ===> return empty array
+		if ( !isset($GLOBALS['__enum__'][$type]) ) return array();
+		// done!
+		return $GLOBALS['__enum__'][$type];
 	}
 
 
