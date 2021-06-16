@@ -163,6 +163,29 @@ class Enum {
 	/**
 	<fusedoc>
 		<description>
+			clear cached data (for unit test)
+		</description>
+		<io>
+			<in>
+				<structure name="__enum__" scope="$GLOBALS" optional="yes" />
+			</in>
+			<out>
+				<boolean name="~return~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function clearCache() {
+		if ( isset($GLOBALS['__enum__']) ) unset($GLOBALS['__enum__']);
+		return true;
+	}
+
+
+
+
+	/**
+	<fusedoc>
+		<description>
 			get single item by type & key
 			get multiple items by type
 			get multiple items by type & key-with-wildcard
