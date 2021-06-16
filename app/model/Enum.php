@@ -141,8 +141,21 @@ class Enum {
 	</fusedoc>
 	*/
 	public static function first($type, $includeDisabled=false) {
-		$beans = self::get($type, null, $includeDisabled);
-		return !empty($beans) ? array_shift($beans) : ORM::new('enum');
+		// load all of this type
+		$all = self::all($type);
+		if ( $all === false ) return false;
+		// find first match
+		// ===> return right away
+		foreach ( $all as $id => $item ) if ( $type == $item->type and ( !$item->disabled or $includeDisabled ) ) return $item;
+		// when no match
+		// ===> empty bean (when not found)
+		$empty = ORM::new('enum', [ 'type' => $type ]);
+		if ( $empty === false ) {
+			self::$error = ORM::error();
+			return false;
+		}
+		// done!
+		return $empty;
 	}
 
 
