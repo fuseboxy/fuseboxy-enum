@@ -92,7 +92,7 @@ class Enum {
 		<io>
 			<in>
 				<string name="$type" />
-				<string name="$key" optional="yes" comments="supposed to have wildcard" />
+				<string name="$keyWithWildcard" optional="yes" comments="supposed to have wildcard" />
 				<boolean name="$includeDisabled" optional="yes" default="false" />
 			</in>
 			<out>
@@ -103,16 +103,16 @@ class Enum {
 		</io>
 	</fusedoc>
 	*/
-	public static function array($type, $key=null, $includeDisabled=false) {
-		$beans = self::get($type, $key, $includeDisabled);
-		// check if multiple or single
-		if ( empty($key) or self::hasWildcard($key) ) {
-			return self::toArray($beans);
-		} elseif ( !empty($beans->id) ) {
-			return array( $beans->key => $beans->value );
-		} else {
-			return array();
-		}
+	public static function array($type, $keyWithWildcard=null, $includeDisabled=false) {
+		// load related items
+		$beans = self::get($type, $keyWithWildcard, $includeDisabled);
+		if ( $beans === false ) return false;
+		// when user passed key-without-wildcard
+		// ===> single record obtained
+		// ===> turn into array instead
+		if ( !empty($beans->id) ) return array($beans->key => $beans->value);
+		// done!
+		return self::toArray($beans);
 	}
 
 
@@ -263,8 +263,9 @@ class Enum {
 	</fusedoc>
 	*/
 	public static function remark($type, $key) {
-		$result = self::get($type, $key);
-		return $result->remark;
+		$item = self::get($type, $key);
+		if ( $item === false ) return false;
+		return $item->remark;
 	}
 
 
@@ -294,7 +295,7 @@ class Enum {
 	*/
 	public static function toArray($beans) {
 		$result = array();
-		foreach ( $beans as $b ) $result[$b->key] = $b->value;
+		foreach ( $beans as $item ) $result[$item->key] = $item->value;
 		return $result;
 	}
 
@@ -319,12 +320,10 @@ class Enum {
 	</fusedoc>
 	*/
 	public static function value($type, $key, $returnKeyIfNotFound=true) {
-		$result = self::get($type, $key);
-		if ( empty($result->id) ) {
-			return $returnKeyIfNotFound ? $key : '';
-		} else {
-			return $result->value;
-		}
+		$item = self::get($type, $key);
+		if ( $item === false ) return false;
+		if ( empty($item->id) and $returnKeyIfNotFound ) return $key;
+		return $item->value;
 	}
 
 
