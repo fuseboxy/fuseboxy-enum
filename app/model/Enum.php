@@ -140,7 +140,7 @@ class Enum {
 	</fusedoc>
 	*/
 	public static function first($type, $includeDisabled=false) {
-		// load all of this type
+		// load all of this type (from cache)
 		$all = self::all($type);
 		if ( $all === false ) return false;
 		// find first match
@@ -163,9 +163,9 @@ class Enum {
 	/**
 	<fusedoc>
 		<description>
+			get single item by type & key
 			get multiple items by type
 			get multiple items by type & key-with-wildcard
-			get single item by type & key
 		</description>
 		<io>
 			<in>
@@ -194,31 +194,30 @@ class Enum {
 		</io>
 	*/
 	public static function get($type, $key=null, $includeDisabled=false) {
-
-
-		// filter
-		$filter = '`type` LIKE ? ';
-		if ( empty($includeDisabled) ) $filter .= 'AND IFNULL(disabled, 0) = 0 ';
-		$filterParam = array($type);
-		if ( !empty($key) ) {
-			$filter .= "AND `key` LIKE ? ";
-			$filterParam[] = $key;
+		// load all of this type (from cache)
+		$all = self::all($type);
+		if ( $all === false ) return false;
+		// get single item (when necessary)
+		// ===> find first match & return right away
+		// ===> otherwise, return empty bean
+		if ( !empty($key) and !self::hasWildcard($key) ) {
+			foreach ( $all as $id => $item ) if ( $item->type == $type ) return $item;
+			$empty = ORM::new('enum', [ 'type' => $type, 'key' => $key ]);
+			if ( $empty === false ) {
+				self::$error = ORM::error();
+				return false;
+			}
+			return $empty;
 		}
-		// order
-		$order = 'ORDER BY IFNULL(`seq`, 99999), `key` ASC ';
-		// get multi records
-		if ( empty($key) or self::hasWildcard($key) ) {
-			$result = ORM::get('enum', $filter.$order, $filterParam);
-		// or single value
-		} else {
-			$result = ORM::first('enum', $filter.$order, $filterParam);
+		// get multiple items
+		// ===> filter by disabled field (when necessary)
+		// ===> filter by key-with-wildcard (when necessary)
+		$result = array();
+		foreach ( $all as $id => $item ) {
+			$isPassedDisabledCheck = ( !$item->disabled or $includeDisabled );
+			$isPassedWildcardCheck = ( !self::hasWildcard($key) or preg_match('/'.str_replace('%', '*', $key), $item->key) );
+			if ( $isPassedDisabledCheck and $isPassedWildcardCheck ) $result[$id] = $item;
 		}
-		// validation
-		if ( $result === false ) {
-			self::$error = ORM::error();
-			return false;
-		}
-		// done!
 		return $result;
 	}
 
