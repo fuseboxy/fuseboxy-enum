@@ -126,7 +126,7 @@ class Enum {
 		<io>
 			<in>
 				<string name="$type" />
-				<boolean name="$includeDisabled" optional="yes" default="false" comments="include disabled items when true" />
+				<boolean name="$includeDisabled" optional="yes" default="false" />
 			</in>
 			<out>
 				<object name="~return~">
@@ -171,7 +171,7 @@ class Enum {
 			<in>
 				<string name="$type" />
 				<string name="$key" optional="yes" example="home-applicance|home-%" />
-				<boolean name="$includeDisabled" optional="yes" default="false" comments="include disabled items when true" />
+				<boolean name="$includeDisabled" optional="yes" default="false" />
 			</in>
 			<out>
 				<!-- multiple -->
@@ -230,7 +230,7 @@ class Enum {
 		</description>
 		<io>
 			<in>
-				<string name="$str" example="home-%" />
+				<string name="$str" example="home-%|home-*" />
 			</in>
 			<out>
 				<boolean name="~return~" />
@@ -239,7 +239,7 @@ class Enum {
 	</fusedoc>
 	*/
 	private static function hasWildcard($str) {
-		return ( stripos($str, '%') !== false );
+		return ( strpos($str, '%') !== false ) or ( strpos($str, '*') !== false );
 	}
 
 
