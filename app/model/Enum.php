@@ -201,7 +201,7 @@ class Enum {
 		// ===> find first match & return right away
 		// ===> otherwise, return empty bean
 		if ( !empty($key) and !self::hasWildcard($key) ) {
-			foreach ( $all as $id => $item ) if ( $item->type == $type ) return $item;
+			foreach ( $all as $id => $item ) if ( $item->key == $key and ( !$item->disabled or $includeDisabled ) ) return $item;
 			$empty = ORM::new('enum', [ 'type' => $type, 'key' => $key ]);
 			if ( $empty === false ) {
 				self::$error = ORM::error();
