@@ -238,7 +238,7 @@ class Enum {
 		$result = array();
 		foreach ( $all as $id => $item ) {
 			$isPassedDisabledCheck = ( !$item->disabled or $includeDisabled );
-			$isPassedWildcardCheck = ( !self::hasWildcard($key) or preg_match('/'.str_replace('%', '*', $key), $item->key) );
+			$isPassedWildcardCheck = ( !self::hasWildcard($key) or preg_match('/'.str_replace('%', '*', $key).'/', $item->key) );
 			if ( $isPassedDisabledCheck and $isPassedWildcardCheck ) $result[$id] = $item;
 		}
 		return $result;
