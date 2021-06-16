@@ -145,7 +145,7 @@ class Enum {
 		if ( $all === false ) return false;
 		// find first match
 		// ===> return right away
-		foreach ( $all as $id => $item ) if ( $type == $item->type and ( !$item->disabled or $includeDisabled ) ) return $item;
+		foreach ( $all as $id => $item ) if ( !$item->disabled or $includeDisabled ) return $item;
 		// when no match
 		// ===> empty bean (when not found)
 		$empty = ORM::new('enum', [ 'type' => $type ]);
@@ -170,7 +170,7 @@ class Enum {
 		<io>
 			<in>
 				<string name="$type" />
-				<string name="$key" optional="yes" example="home-applicance|home-%" />
+				<string name="$key" optional="yes" example="home-applicance|home-%|*-applicance" />
 				<boolean name="$includeDisabled" optional="yes" default="false" />
 			</in>
 			<out>
@@ -194,6 +194,8 @@ class Enum {
 		</io>
 	*/
 	public static function get($type, $key=null, $includeDisabled=false) {
+
+
 		// filter
 		$filter = '`type` LIKE ? ';
 		if ( empty($includeDisabled) ) $filter .= 'AND IFNULL(disabled, 0) = 0 ';
