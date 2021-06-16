@@ -148,7 +148,7 @@ class Enum {
 		foreach ( $all as $id => $item ) if ( !$item->disabled or $includeDisabled ) return $item;
 		// when no match
 		// ===> empty bean (when not found)
-		$empty = ORM::new('enum', [ 'type' => $type ]);
+		$empty = ORM::new('enum');
 		if ( $empty === false ) {
 			self::$error = ORM::error();
 			return false;
@@ -202,7 +202,7 @@ class Enum {
 		// ===> otherwise, return empty bean
 		if ( !empty($key) and !self::hasWildcard($key) ) {
 			foreach ( $all as $id => $item ) if ( $item->key == $key and ( !$item->disabled or $includeDisabled ) ) return $item;
-			$empty = ORM::new('enum', [ 'type' => $type, 'key' => $key ]);
+			$empty = ORM::new('enum');
 			if ( $empty === false ) {
 				self::$error = ORM::error();
 				return false;
