@@ -10,11 +10,11 @@ class Enum {
 
 
 	// alias methods (for backward compatibility)
-	public static function getAll   ($type)                                  { return self::all($type); }
-	public static function getArray ($type, $key=null, $all=false)           { return self::array($type, $key, $all); }
-	public static function getFirst ($type, $all=false)                      { return self::first($type, $all); }
-	public static function getRemark($type, $key)                            { return self::remark($type, $key); }
-	public static function getValue ($type, $key, $returnKeyIfNotFound=true) { return self::value($type, $key, $returnKeyIfNotFound); }
+	public static function getAll   ($type)                                    { return self::all($type); }
+	public static function getArray ($type, $key=null, $includeDisabled=false) { return self::array($type, $key, $includeDisabled); }
+	public static function getFirst ($type, $includeDisabled=false)            { return self::first($type, $includeDisabled); }
+	public static function getRemark($type, $key)                              { return self::remark($type, $key); }
+	public static function getValue ($type, $key, $returnKeyIfNotFound=true)   { return self::value($type, $key, $returnKeyIfNotFound); }
 
 
 
@@ -94,7 +94,7 @@ class Enum {
 			<in>
 				<string name="$type" />
 				<string name="$key" optional="yes" comments="supposed to have wildcard" />
-				<boolean name="$all" optional="yes" default="false" comments="include disabled items when true" />
+				<boolean name="$includeDisabled" optional="yes" default="false" />
 			</in>
 			<out>
 				<structure name="~return~">
@@ -104,8 +104,8 @@ class Enum {
 		</io>
 	</fusedoc>
 	*/
-	public static function array($type, $key=null, $all=false) {
-		$beans = self::get($type, $key, $all);
+	public static function array($type, $key=null, $includeDisabled=false) {
+		$beans = self::get($type, $key, $includeDisabled);
 		// check if multiple or single
 		if ( empty($key) or self::hasWildcard($key) ) {
 			return self::toArray($beans);
@@ -127,7 +127,7 @@ class Enum {
 		<io>
 			<in>
 				<string name="$type" />
-				<boolean name="$all" optional="yes" default="false" comments="include disabled items when true" />
+				<boolean name="$includeDisabled" optional="yes" default="false" comments="include disabled items when true" />
 			</in>
 			<out>
 				<object name="~return~">
@@ -140,8 +140,8 @@ class Enum {
 		</io>
 	</fusedoc>
 	*/
-	public static function first($type, $all=false) {
-		$beans = self::get($type, null, $all);
+	public static function first($type, $includeDisabled=false) {
+		$beans = self::get($type, null, $includeDisabled);
 		return !empty($beans) ? array_shift($beans) : ORM::new('enum');
 	}
 
@@ -159,7 +159,7 @@ class Enum {
 			<in>
 				<string name="$type" />
 				<string name="$key" optional="yes" example="home-applicance|home-%" />
-				<boolean name="$all" optional="yes" default="false" comments="include disabled items when true" />
+				<boolean name="$includeDisabled" optional="yes" default="false" comments="include disabled items when true" />
 			</in>
 			<out>
 				<!-- multiple -->
@@ -181,10 +181,10 @@ class Enum {
 			</out>
 		</io>
 	*/
-	public static function get($type, $key=null, $all=false) {
+	public static function get($type, $key=null, $includeDisabled=false) {
 		// filter
 		$filter = '`type` LIKE ? ';
-		if ( empty($all) ) $filter .= 'AND IFNULL(disabled, 0) = 0 ';
+		if ( empty($includeDisabled) ) $filter .= 'AND IFNULL(disabled, 0) = 0 ';
 		$filterParam = array($type);
 		if ( !empty($key) ) {
 			$filter .= "AND `key` LIKE ? ";
