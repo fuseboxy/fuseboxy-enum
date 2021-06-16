@@ -30,7 +30,7 @@ class Enum {
 				<!-- cache -->
 				<structure name="__enum__" scope="$GLOBALS" optional="yes">
 					<structure name="~type~">
-						<object name="~key~" />
+						<object name="~id~" />
 					</structure>
 				</structure>
 				<!-- parameter -->
@@ -40,7 +40,7 @@ class Enum {
 				<!-- cache -->
 				<structure name="__enum__" scope="$GLOBALS">
 					<structure name="~type~">
-						<object name="~key~" />
+						<object name="~id~" />
 					</structure>
 				</structure>
 				<!-- return value -->
@@ -68,10 +68,9 @@ class Enum {
 				return false;
 			}
 			// put into cache
-			// ===> change key from {enum-id} to {enum-key}
 			foreach ( $data as $id => $item ) {
 				if ( !isset($GLOBALS['__enum__'][$item->type]) ) $GLOBALS['__enum__'][$item->type] = array();
-				$GLOBALS['__enum__'][$item->type][$item->key] = $item;
+				$GLOBALS['__enum__'][$item->type][$id] = $item;
 			}
 		}
 		// if still not found
