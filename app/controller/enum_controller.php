@@ -27,7 +27,7 @@ $scaffold = array(
 		'type' => array('placeholder' => true, 'readonly' => !Auth::userInRole('SUPER'), 'default' => $_SESSION['enumController__enumType']),
 		'key' => array('placeholder' => true),
 		'value' => array('placeholder' => true),
-		'remark' => array('placeholder' => true),
+		'remark' => array('placeholder' => true, 'format' => 'textarea', 'style' => 'height: 5rem'),
 		'seq' => array('placeholder' => true),
 	),
 	'writeLog' => class_exists('Log'),
