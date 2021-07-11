@@ -107,10 +107,22 @@ class Enum {
 		// load related items
 		$beans = self::get($type, $keyWithWildcard, $includeDisabled);
 		if ( $beans === false ) return false;
-		// when user passed key-without-wildcard
-		// ===> single record obtained
+		// when record has ID
+		// ===> user passed key-without-wildcard
+		// ===> therefore specific enum obtained
 		// ===> turn into array instead
-		if ( !empty($beans->id) ) return array($beans->key => $beans->value);
+		if ( !empty($beans->id) ) {
+			$key = $beans->key;
+			// convert language (when necessary)
+			if ( class_exists('I18N') ) {
+				$val = I18N::convert($beans, 'value');
+				if ( $val === false ) {
+					self::$error = I18N::error();
+					return false;
+				}
+			} else $val = $beans->value;
+			return array($key => $val);
+		}
 		// done!
 		return self::toArray($beans);
 	}
@@ -287,9 +299,19 @@ class Enum {
 	</fusedoc>
 	*/
 	public static function remark($type, $key) {
+		// get specific item (if any)
 		$item = self::get($type, $key);
 		if ( $item === false ) return false;
-		return $item->remark;
+		// convert language (when necessary)
+		if ( class_exists('I18N') ) {
+			$result = I18N::convert($item, 'remark');
+			if ( $result === false ) {
+				self::$error = I18N::error();
+				return false;
+			}
+		} else $result = $item->remark;
+		// done!
+		return $result;
 	}
 
 
@@ -319,7 +341,18 @@ class Enum {
 	*/
 	public static function toArray($beans) {
 		$result = array();
-		foreach ( $beans as $item ) $result[$item->key] = $item->value;
+		// go through each item
+		foreach ( $beans as $item ) {
+			// convert language (when necessary)
+			if ( class_exists('I18N') ) {
+				$result[$item->key] = I18N::convert($item, 'value');
+				if ( $result[$item->key] === false ) {
+					self::$error = I18N::error();
+					return false;
+				}
+			} else $result[$item->key] = $item->value;
+		}
+		// done!
 		return $result;
 	}
 
@@ -344,10 +377,20 @@ class Enum {
 	</fusedoc>
 	*/
 	public static function value($type, $key, $returnKeyIfNotFound=true) {
+		// get specific item (if any)
 		$item = self::get($type, $key);
 		if ( $item === false ) return false;
 		if ( empty($item->id) and $returnKeyIfNotFound ) return $key;
-		return $item->value;
+		// convert language (when necessary)
+		if ( class_exists('I18N') ) {
+			$result = I18N::convert($item, 'value');
+			if ( $result === false ) {
+				self::$error = I18N::error();
+				return false;
+			}
+		} else $result = $item->value;
+		// done!
+		return $result;
 	}
 
 
