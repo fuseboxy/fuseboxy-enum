@@ -27,7 +27,7 @@ $scaffold = array(
 			foreach ( ['value','remark'] as $fieldName ) {
 				foreach ( $locales as $localeName ) {
 					if ( $localeName == 'en' ) $fields[] = $fieldName;
-					elseif ( !F::is('*.index,*.row') ) $fields[] = $fieldName.'__'.str_replace('-', '_', $localeName);
+					else $fields[] = $fieldName.'__'.str_replace('-', '_', $localeName);
 				}
 			}
 			// done!
