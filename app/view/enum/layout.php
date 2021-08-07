@@ -7,7 +7,7 @@ $arguments['breadcrumb'] = array('Settings', ucwords( str_replace('_', ' ', strt
 $tabLayout = array(
 	'style' => 'tabs',
 	'position' => 'left',
-	'header' => '<h3>Settings</h3>',
+	'header' => 'Settings',
 	'nav' => call_user_func(function(){
 		$menus = array();
 		// get all types
