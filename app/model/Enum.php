@@ -198,6 +198,31 @@ class Enum {
 	/**
 	<fusedoc>
 		<description>
+			get number of items by type
+		</description>
+		<io>
+			<in>
+				<string name="$type" />
+				<boolean name="$includeDisabled" optional="yes" default="false" />
+			</in>
+			<out>
+				<number name="~return~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function count($type, $includeDisabled=false) {
+		$items = self::get($type, null, $includeDisabled);
+		if ( $items === false ) return false;
+		return count($items);
+	}
+
+
+
+
+	/**
+	<fusedoc>
+		<description>
 			get single item by type & key
 			get multiple items by type
 			get multiple items by type & key-with-wildcard
