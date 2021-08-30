@@ -2,6 +2,7 @@
 	"name": "fuseboxy/fuseboxy-enum",
 	"description": "Fuseboxy Enum - Reduce Your DB Complexity",
 	"license": "MIT",
-    "type": "fuseboxy-module",
-    "require": { "fuseboxy/fuseboxy-installer": "*" }
+	"type": "fuseboxy-module",
+	"require": { "fuseboxy/fuseboxy-installer": "*" },
+	"autoload": { "files": [ "app/model/Enum.php" ] }
 }
