@@ -3,9 +3,8 @@ F::redirect('auth', !Auth::user());
 F::error('Forbidden', !Auth::userInRole('SUPER,ADMIN'));
 
 
-// default type & retain selected type
-if ( !isset($_SESSION['enumController__enumType']) ) $_SESSION['enumController__enumType'] = ORM::count('enum') ? ORM::first('enum', 'ORDER BY type')->type : '';
-if ( isset($arguments['type']) ) $_SESSION['enumController__enumType'] = $arguments['type'];
+// retain & default
+$_SESSION['enumController__enumType'] = $arguments['type'] ?? $_SESSION['enumController__enumType'] ?? ( ORM::count('enum') ? ORM::first('enum', 'ORDER BY type')->type : '' );
 
 
 // config
