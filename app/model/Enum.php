@@ -13,7 +13,7 @@ class Enum {
 	public static function getAll   ($type)                                    { return self::all($type); }
 	public static function getArray ($type, $key=null, $includeDisabled=false) { return self::array($type, $key, $includeDisabled); }
 	public static function getFirst ($type, $includeDisabled=false)            { return self::first($type, $includeDisabled); }
-	public static function getRemark($type, $key)                              { return self::remark($type, $key); }
+	public static function getRemark($type, $key, $var=false)                  { return self::remark($type, $key, $var); }
 	public static function getValue ($type, $key, $returnKeyIfNotFound=true)   { return self::value($type, $key, $returnKeyIfNotFound); }
 
 
@@ -309,13 +309,14 @@ class Enum {
 	/**
 	<fusedoc>
 		<description>
-			get remark of specific enum item
+			get remark of specific enum item (or specific var in remark)
 			===> simply return empty when not found
 		</description>
 		<io>
 			<in>
 				<string name="$type" />
 				<string name="$key" />
+				<boolean_or_string name="$var" default="false" comments="return parsed remark when true; return specific var of parsed remark when string" />
 			</in>
 			<out>
 				<string name="~return~" />
@@ -323,18 +324,20 @@ class Enum {
 		</io>
 	</fusedoc>
 	*/
-	public static function remark($type, $key) {
+	public static function remark($type, $key, $var=false) {
 		// get specific item (if any)
 		$item = self::get($type, $key);
 		if ( $item === false ) return false;
 		// convert language (when necessary)
-		if ( class_exists('I18N') ) {
-			$result = I18N::convert($item, 'remark');
-			if ( $result === false ) {
-				self::$error = I18N::error();
-				return false;
-			}
-		} else $result = $item->remark;
+		$result = class_exists('I18N') ? I18N::convert($item, 'remark') : $item->remark;
+		if ( $result === false and class_exists('I18N') ) {
+			self::$error = I18N::error();
+			return false;
+		}
+		// parse remark & get specific var (when necessary)
+		if ( !empty($var) ) parse_str($result, $parsed);
+		if ( $var === true ) return $parsed;
+		if ( !empty($var) and is_string($var) ) return $parsed[$var] ?? null;
 		// done!
 		return $result;
 	}
