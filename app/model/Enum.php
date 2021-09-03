@@ -316,7 +316,7 @@ class Enum {
 			<in>
 				<string name="$type" />
 				<string name="$key" />
-				<boolean_or_string name="$var" default="false" comments="return parsed remark when true; return specific var of parsed remark when string" />
+				<mixed name="$var" default="false" comments="return parsed remark when true; return specific var of parsed remark when string" />
 			</in>
 			<out>
 				<string name="~return~" />
