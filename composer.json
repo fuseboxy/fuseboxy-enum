@@ -4,5 +4,10 @@
 	"license": "MIT",
 	"type": "fuseboxy-module",
 	"require": { "fuseboxy/fuseboxy-installer": "*" },
-	"autoload": { "files": [ "app/model/Enum.php" ] }
+	"autoload": {
+		"files": [
+			"app/model/Enum.php",
+			"app/model/Model_Enum.php",
+		]
+	}
 }
