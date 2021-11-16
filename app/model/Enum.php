@@ -5,6 +5,9 @@ class Enum {
 	// get (latest) error message
 	private static $error;
 	public static function error() { return self::$error; }
+	// cache for current request
+	private static $cache = array();
+	public static function cache($type) { return self::$cache[$type] ?? null; }
 
 
 
@@ -28,7 +31,7 @@ class Enum {
 		<io>
 			<in>
 				<!-- cache -->
-				<structure name="__enum__" scope="$GLOBALS" optional="yes">
+				<structure name="$cache" scope="self">
 					<structure name="~type~">
 						<object name="~id~" />
 					</structure>
@@ -38,7 +41,7 @@ class Enum {
 			</in>
 			<out>
 				<!-- cache -->
-				<structure name="__enum__" scope="$GLOBALS">
+				<structure name="$cache" scope="self">
 					<structure name="~type~">
 						<object name="~id~" />
 					</structure>
@@ -57,10 +60,8 @@ class Enum {
 	</fusedoc>
 	*/
 	public static function all($type) {
-		// create cache container (when necessary)
-		if ( !isset($GLOBALS['__enum__']) ) $GLOBALS['__enum__'] = array();
 		// load from database (when necessary)
-		if ( !isset($GLOBALS['__enum__'][$type]) ) {
+		if ( !self::cache($type) ) {
 			$data = ORM::get('enum', ' `type` LIKE ? ORDER BY IFNULL(`seq`, 99999), `key` ASC ', [ $type ]);
 			// validation
 			if ( $data === false ) {
@@ -69,16 +70,16 @@ class Enum {
 			}
 			// put into cache
 			foreach ( $data as $id => $item ) {
-				if ( !isset($GLOBALS['__enum__'][$item->type]) ) $GLOBALS['__enum__'][$item->type] = array();
-				$GLOBALS['__enum__'][$item->type][$id] = $item;
+				if ( !self::cache($item->type) ) self::$cache[$item->type] = array();
+				self::$cache[$item->type[$id] = $item;
 			}
 		}
 		// if still not found
 		// ===> type not found in database
 		// ===> return empty array
-		if ( !isset($GLOBALS['__enum__'][$type]) ) return array();
+		if ( !self::cache($type) ) return array();
 		// done!
-		return $GLOBALS['__enum__'][$type];
+		return self::cache($type);
 	}
 
 
@@ -179,7 +180,7 @@ class Enum {
 		</description>
 		<io>
 			<in>
-				<structure name="__enum__" scope="$GLOBALS" optional="yes" />
+				<structure name="$cache" scope="self" />
 			</in>
 			<out>
 				<boolean name="~return~" />
@@ -188,7 +189,7 @@ class Enum {
 	</fusedoc>
 	*/
 	public static function clearCache() {
-		if ( isset($GLOBALS['__enum__']) ) unset($GLOBALS['__enum__']);
+		self::$cache = array();
 		return true;
 	}
 
