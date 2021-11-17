@@ -71,7 +71,7 @@ class Enum {
 			// put into cache
 			foreach ( $data as $id => $item ) {
 				if ( !self::cache($item->type) ) self::$cache[$item->type] = array();
-				self::$cache[$item->type[$id] = $item;
+				self::$cache[$item->type[$id]] = $item;
 			}
 		}
 		// if still not found
