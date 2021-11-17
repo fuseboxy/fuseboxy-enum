@@ -349,6 +349,31 @@ class Enum {
 	/**
 	<fusedoc>
 		<description>
+			alias to get parsed remark of specific enum item
+		</description>
+		<io>
+			<in>
+				<string name="$type" />
+				<string name="$key" />
+			</in>
+			<out>
+				<structure name="~return~">
+					<string name="*" />
+				</structure>
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function remarkArray($type, $key) {
+		return self::remark($type, $key, true);
+	}
+
+
+
+
+	/**
+	<fusedoc>
+		<description>
 			convert multiple enum beans to array
 		</description>
 		<io>
