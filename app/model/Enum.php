@@ -134,48 +134,6 @@ class Enum {
 	/**
 	<fusedoc>
 		<description>
-			get first item of specific type
-		</description>
-		<io>
-			<in>
-				<string name="$type" />
-				<boolean name="$includeDisabled" optional="yes" default="false" />
-			</in>
-			<out>
-				<object name="~return~">
-					<string name="type" />
-					<string name="key" />
-					<string name="value" />
-					<string name="remark" />
-				</object>
-			</out>
-		</io>
-	</fusedoc>
-	*/
-	public static function first($type, $includeDisabled=false) {
-		// load all of this type (from cache)
-		$all = self::all($type);
-		if ( $all === false ) return false;
-		// find first match
-		// ===> return right away
-		foreach ( $all as $id => $item ) if ( !$item->disabled or $includeDisabled ) return $item;
-		// when no match
-		// ===> empty bean (when not found)
-		$empty = ORM::new('enum');
-		if ( $empty === false ) {
-			self::$error = ORM::error();
-			return false;
-		}
-		// done!
-		return $empty;
-	}
-
-
-
-
-	/**
-	<fusedoc>
-		<description>
 			clear cached data (for unit test)
 		</description>
 		<io>
@@ -216,6 +174,72 @@ class Enum {
 		$items = self::get($type, null, $includeDisabled);
 		if ( $items === false ) return false;
 		return count($items);
+	}
+
+
+
+
+	/**
+	<fusedoc>
+		<description>
+			check if specific enum exists
+		</description>
+		<io>
+			<in>
+				<string name="$type" />
+				<string name="$key" />
+			</in>
+			<out>
+				<boolean name="~return~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function exists($type, $key) {
+		$item = self::get($type, $key);
+		return !empty($item->id);
+	}
+
+
+
+
+	/**
+	<fusedoc>
+		<description>
+			get first item of specific type
+		</description>
+		<io>
+			<in>
+				<string name="$type" />
+				<boolean name="$includeDisabled" optional="yes" default="false" />
+			</in>
+			<out>
+				<object name="~return~">
+					<string name="type" />
+					<string name="key" />
+					<string name="value" />
+					<string name="remark" />
+				</object>
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function first($type, $includeDisabled=false) {
+		// load all of this type (from cache)
+		$all = self::all($type);
+		if ( $all === false ) return false;
+		// find first match
+		// ===> return right away
+		foreach ( $all as $id => $item ) if ( !$item->disabled or $includeDisabled ) return $item;
+		// when no match
+		// ===> empty bean (when not found)
+		$empty = ORM::new('enum');
+		if ( $empty === false ) {
+			self::$error = ORM::error();
+			return false;
+		}
+		// done!
+		return $empty;
 	}
 
 
