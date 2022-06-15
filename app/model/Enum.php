@@ -373,7 +373,7 @@ class Enum {
 	/**
 	<fusedoc>
 		<description>
-			alias to get parsed remark of specific enum item
+			alias methods to get parsed remark of specific enum item
 		</description>
 		<io>
 			<in>
@@ -388,9 +388,8 @@ class Enum {
 		</io>
 	</fusedoc>
 	*/
-	public static function remarkArray($type, $key) {
-		return self::remark($type, $key, true);
-	}
+	public static function remarkArray($type, $key) { return self::remark($type, $key, true); }
+	public static function parseRemark($type, $key) { return self::remark($type, $key, true); }
 
 
 
