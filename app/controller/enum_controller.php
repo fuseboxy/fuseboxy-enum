@@ -3,17 +3,18 @@ F::redirect('auth', !Auth::user());
 F::error('Forbidden', !Auth::userInRole('SUPER,ADMIN'));
 
 
-// retain & default
-$_SESSION['enumController__enumType'] = $arguments['type'] ?? $_SESSION['enumController__enumType'] ?? ( ORM::count('enum') ? ORM::first('enum', 'ORDER BY type')->type : '' );
+// default type
+$arguments['type'] = $arguments['type'] ?? ( ORM::count('enum') ? ORM::first('enum', 'ORDER BY type')->type : '' );
 
 
 // config
 $scaffold = array(
 	'beanType' => 'enum',
+	'retainParam' => array('type' => $arguments['type']),
 	'editMode' => 'inline',
 	'allowDelete' => Auth::userInRole('SUPER'),
 	'layoutPath' => F::appPath('view/enum/layout.php'),
-	'listFilter' => array('type = ?', array($_SESSION['enumController__enumType'])),
+	'listFilter' => array('type = ?', array($$arguments['type'])),
 	'listOrder' => 'ORDER BY IFNULL(seq, 9999), `key` ',
 	'listField' => array(
 		'id' => '60',
@@ -35,7 +36,7 @@ $scaffold = array(
 		'seq' => '70'
 	),
 	'fieldConfig' => array_merge([
-		'type' => array('placeholder' => true, 'readonly' => !Auth::userInRole('SUPER'), 'default' => $_SESSION['enumController__enumType']),
+		'type' => array('placeholder' => true, 'readonly' => !Auth::userInRole('SUPER'), 'default' => $arguments['type']),
 		'key' => array('placeholder' => true),
 		'seq' => array('placeholder' => true),
 	], call_user_func(function(){

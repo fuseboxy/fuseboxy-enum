@@ -1,6 +1,6 @@
 <?php
 // breadcrumb
-$arguments['breadcrumb'] = array('Settings', ucwords( str_replace('_', ' ', strtolower($_SESSION['enumController__enumType']) ) ) );
+$arguments['breadcrumb'] = array('Settings', ucwords( str_replace('_', ' ', strtolower($arguments['type']) ) ) );
 
 
 // tab layout config
@@ -8,7 +8,7 @@ $tabLayout = array(
 	'style' => 'tabs',
 	'position' => 'left',
 	'header' => 'Settings',
-	'nav' => call_user_func(function(){
+	'nav' => call_user_func(function() use ($arguments){
 		$menus = array();
 		// get all types
 		$types = array_map(function($item){
@@ -19,7 +19,7 @@ $tabLayout = array(
 			$menus[] = array(
 				'name' => ucwords( str_replace('_', ' ', strtolower($item) ) ),
 				'url' => F::url( F::command('controller').'&type='.$item ),
-				'active' => ( !empty($_SESSION['enumController__enumType']) and $_SESSION['enumController__enumType'] == $item ),
+				'active' => ( $arguments['type'] == $item ),
 				'remark' => ORM::count('enum', 'type = ? AND disabled = 0', array($item)),
 			);
 		}
@@ -27,7 +27,7 @@ $tabLayout = array(
 		$menus[] = array(
 			'name' => '+ New Setting',
 			'url' => F::url( F::command('controller').'&type=' ),
-			'active' => empty($_SESSION['enumController__enumType']),
+			'active' => empty($arguments['type']),
 			'linkClass' => 'font-italic text-muted',
 		);
 		// done!
