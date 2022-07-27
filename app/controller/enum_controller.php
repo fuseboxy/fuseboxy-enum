@@ -14,7 +14,7 @@ $scaffold = array(
 	'editMode' => 'inline',
 	'allowDelete' => Auth::userInRole('SUPER'),
 	'layoutPath' => F::appPath('view/enum/layout.php'),
-	'listFilter' => array('type = ?', array($$arguments['type'])),
+	'listFilter' => array('type = ?', array($arguments['type'])),
 	'listOrder' => 'ORDER BY IFNULL(seq, 9999), `key` ',
 	'listField' => array(
 		'id' => '60',
