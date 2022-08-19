@@ -8,7 +8,7 @@ $arguments['type'] = $arguments['type'] ?? ( ORM::count('enum') ? ORM::first('en
 
 
 // config
-$scaffold = array(
+$scaffold = array_merge([
 	'beanType' => 'enum',
 	'retainParam' => array('type' => $arguments['type']),
 	'editMode' => 'inline',
@@ -63,7 +63,7 @@ $scaffold = array(
 		return $fields;
 	})),
 	'writeLog' => class_exists('Log'),
-);
+], $enumScaffold ?? []);
 
 
 // component
