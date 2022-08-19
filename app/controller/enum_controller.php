@@ -63,7 +63,7 @@ $scaffold = array_merge([
 		return $fields;
 	})),
 	'writeLog' => class_exists('Log'),
-], $enumScaffold ?? []);
+], $enumScaffold ?? $enum_scaffold ?? []);
 
 
 // component
