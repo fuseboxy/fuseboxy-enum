@@ -419,7 +419,7 @@ class Enum {
 	public static function toArray($beans) {
 		$result = array();
 		// go through each item
-		foreach ( $beans as $item ) {
+		foreach ( $beans as $item ) if ( !empty($item->id) ) {
 			// convert language (when necessary)
 			if ( class_exists('I18N') ) {
 				$result[$item->key] = I18N::convert($item, 'value');
