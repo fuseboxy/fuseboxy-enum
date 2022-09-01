@@ -282,7 +282,7 @@ class Enum {
 		// load all of this type (from cache)
 		$all = self::all($type);
 		if ( $all === false ) return false;
-		// get single item (when necessary)
+		// get single item (when key specified and no wildcard)
 		// ===> find first match & return right away
 		// ===> otherwise, return empty bean
 		if ( !empty($key) and !self::hasWildcard($key) ) {
@@ -294,7 +294,7 @@ class Enum {
 			}
 			return $empty;
 		}
-		// get multiple items
+		// get multiple items (when no key specified or key has wildcard)
 		// ===> filter by disabled field (when necessary)
 		// ===> filter by key-with-wildcard (when necessary)
 		$result = array();
@@ -324,7 +324,7 @@ class Enum {
 		</io>
 	</fusedoc>
 	*/
-	private static function hasWildcard($str) {
+	public static function hasWildcard($str) {
 		return ( strpos($str, '%') !== false ) or ( strpos($str, '*') !== false );
 	}
 
