@@ -7,17 +7,12 @@ class Enum {
 	public static function error() { return self::$error; }
 	// cache for current request
 	private static $cache = array();
-	public static function cache($type) { return self::$cache[$type] ?? null; }
+	public static function cache($enumType) { return self::$cache[$enumType] ?? null; }
 
 
 
 
-	// alias methods (for backward compatibility)
-	public static function getAll   ($type)                                    { return self::all($type); }
-	public static function getArray ($type, $key=null, $includeDisabled=false) { return self::array($type, $key, $includeDisabled); }
-	public static function getFirst ($type, $includeDisabled=false)            { return self::first($type, $includeDisabled); }
-	public static function getRemark($type, $key, $var=false)                  { return self::remark($type, $key, $var); }
-	public static function getValue ($type, $key, $returnKeyIfNotFound=true)   { return self::value($type, $key, $returnKeyIfNotFound); }
+
 
 
 
@@ -37,7 +32,7 @@ class Enum {
 					</structure>
 				</structure>
 				<!-- parameter -->
-				<string name="$type" />
+				<string name="$enumType" />
 			</in>
 			<out>
 				<!-- cache -->
@@ -59,10 +54,10 @@ class Enum {
 		</io>
 	</fusedoc>
 	*/
-	public static function all($type) {
+	public static function all($enumType) {
 		// load from database (when necessary)
-		if ( !self::cache($type) ) {
-			$data = ORM::get('enum', ' `type` LIKE ? ORDER BY IFNULL(`seq`, 99999), `key` ASC ', [ $type ]);
+		if ( !self::cache($enumType) ) {
+			$data = ORM::get('enum', ' `type` LIKE ? ORDER BY IFNULL(`seq`, 99999), `key` ASC ', [ $enumType ]);
 			// validation
 			if ( $data === false ) {
 				self::$error = '[Enum::all] '.ORM::error();
@@ -77,10 +72,12 @@ class Enum {
 		// if still not found
 		// ===> type not found in database
 		// ===> return empty array
-		if ( !self::cache($type) ) return array();
+		if ( !self::cache($enumType) ) return array();
 		// done!
-		return self::cache($type);
+		return self::cache($enumType);
 	}
+	// alias method (for backward compatibility)
+	public static function getAll($enumType) { return self::all($enumType); }
 
 
 
@@ -92,8 +89,8 @@ class Enum {
 		</description>
 		<io>
 			<in>
-				<string name="$type" />
-				<string name="$keyWithWildcard" optional="yes" comments="supposed to have wildcard" />
+				<string name="$enumType" />
+				<string name="$enumKeyWithWildcard" optional="yes" comments="supposed to have wildcard" />
 				<boolean name="$includeDisabled" optional="yes" default="false" />
 			</in>
 			<out>
@@ -104,9 +101,9 @@ class Enum {
 		</io>
 	</fusedoc>
 	*/
-	public static function array($type, $keyWithWildcard=null, $includeDisabled=false) {
+	public static function array($enumType, $enumKeyWithWildcard=null, $includeDisabled=false) {
 		// load related items
-		$beans = self::get($type, $keyWithWildcard, $includeDisabled);
+		$beans = self::get($enumType, $enumKeyWithWildcard, $includeDisabled);
 		if ( $beans === false ) return false;
 		// when record has ID
 		// ===> user passed key-without-wildcard
@@ -127,6 +124,8 @@ class Enum {
 		// done!
 		return self::toArray($beans);
 	}
+	// alias method (for backward compatibility)
+	public static function getArray($enumType, $enumKey=null, $includeDisabled=false) { return self::array($enumType, $enumKey, $includeDisabled); }
 
 
 
@@ -161,7 +160,7 @@ class Enum {
 		</description>
 		<io>
 			<in>
-				<string name="$type" />
+				<string name="$enumType" />
 				<boolean name="$includeDisabled" optional="yes" default="false" />
 			</in>
 			<out>
@@ -170,8 +169,8 @@ class Enum {
 		</io>
 	</fusedoc>
 	*/
-	public static function count($type, $includeDisabled=false) {
-		$items = self::get($type, null, $includeDisabled);
+	public static function count($enumType, $includeDisabled=false) {
+		$items = self::get($enumType, null, $includeDisabled);
 		if ( $items === false ) return false;
 		return count($items);
 	}
@@ -186,8 +185,8 @@ class Enum {
 		</description>
 		<io>
 			<in>
-				<string name="$type" />
-				<string name="$key" />
+				<string name="$enumType" />
+				<string name="$enumKey" />
 			</in>
 			<out>
 				<boolean name="~return~" />
@@ -195,8 +194,8 @@ class Enum {
 		</io>
 	</fusedoc>
 	*/
-	public static function exists($type, $key) {
-		$item = self::get($type, $key);
+	public static function exists($enumType, $enumKey) {
+		$item = self::get($enumType, $enumKey);
 		return !empty($item->id);
 	}
 
@@ -210,7 +209,7 @@ class Enum {
 		</description>
 		<io>
 			<in>
-				<string name="$type" />
+				<string name="$enumType" />
 				<boolean name="$includeDisabled" optional="yes" default="false" />
 			</in>
 			<out>
@@ -224,9 +223,9 @@ class Enum {
 		</io>
 	</fusedoc>
 	*/
-	public static function first($type, $includeDisabled=false) {
+	public static function first($enumType, $includeDisabled=false) {
 		// load all of this type (from cache)
-		$all = self::all($type);
+		$all = self::all($enumType);
 		if ( $all === false ) return false;
 		// find first match
 		// ===> return right away
@@ -241,6 +240,8 @@ class Enum {
 		// done!
 		return $empty;
 	}
+	// alias method (for backward compatibility)
+	public static function getFirst($enumType, $includeDisabled=false) { return self::first($enumType, $includeDisabled); }
 
 
 
@@ -254,8 +255,8 @@ class Enum {
 		</description>
 		<io>
 			<in>
-				<string name="$type" />
-				<string name="$key" optional="yes" example="home-applicance|home-%|*-applicance" />
+				<string name="$enumType" />
+				<string name="$enumKey" optional="yes" example="home-applicance|home-%|*-applicance" />
 				<boolean name="$includeDisabled" optional="yes" default="false" />
 			</in>
 			<out>
@@ -278,15 +279,15 @@ class Enum {
 			</out>
 		</io>
 	*/
-	public static function get($type, $key=null, $includeDisabled=false) {
+	public static function get($enumType, $enumKey=null, $includeDisabled=false) {
 		// load all of this type (from cache)
-		$all = self::all($type);
+		$all = self::all($enumType);
 		if ( $all === false ) return false;
 		// get single item (when key specified and no wildcard)
 		// ===> find first match & return right away
 		// ===> otherwise, return empty bean
-		if ( !empty($key) and !self::hasWildcard($key) ) {
-			foreach ( $all as $id => $item ) if ( $item->key == $key and ( !$item->disabled or $includeDisabled ) ) return $item;
+		if ( !empty($enumKey) and !self::hasWildcard($enumKey) ) {
+			foreach ( $all as $id => $item ) if ( $item->key == $enumKey and ( !$item->disabled or $includeDisabled ) ) return $item;
 			$empty = ORM::new('enum');
 			if ( $empty === false ) {
 				self::$error = '[Enum::get] '.ORM::error();
@@ -300,7 +301,7 @@ class Enum {
 		$result = array();
 		foreach ( $all as $id => $item ) {
 			$isPassedDisabledCheck = ( !$item->disabled or $includeDisabled );
-			$isPassedWildcardCheck = ( !self::hasWildcard($key) or preg_match('/'.str_replace('%', '*', $key).'/', $item->key) );
+			$isPassedWildcardCheck = ( !self::hasWildcard($enumKey) or preg_match('/'.str_replace('%', '*', $enumKey).'/', $item->key) );
 			if ( $isPassedDisabledCheck and $isPassedWildcardCheck ) $result[$id] = $item;
 		}
 		return $result;
@@ -339,9 +340,9 @@ class Enum {
 		</description>
 		<io>
 			<in>
-				<string name="$type" />
-				<string name="$key" />
-				<mixed name="$var" default="false" comments="return parsed remark when true; return specific var of parsed remark when string" />
+				<string name="$enumType" />
+				<string name="$enumKey" />
+				<mixed name="$remarkKey" default="false" comments="return parsed remark when true; return specific var of parsed remark when string" />
 			</in>
 			<out>
 				<string name="~return~" />
@@ -349,9 +350,9 @@ class Enum {
 		</io>
 	</fusedoc>
 	*/
-	public static function remark($type, $key, $var=false) {
+	public static function remark($enumType, $enumKey, $remarkKey=false) {
 		// get specific item (if any)
-		$item = self::get($type, $key);
+		$item = self::get($enumType, $enumKey);
 		if ( $item === false ) return false;
 		// convert language (when necessary)
 		$result = class_exists('I18N') ? I18N::convert($item, 'remark') : $item->remark;
@@ -360,12 +361,14 @@ class Enum {
 			return false;
 		}
 		// parse remark & get specific var (when necessary)
-		if ( !empty($var) ) parse_str($result, $parsed);
-		if ( $var === true ) return $parsed;
-		if ( !empty($var) and is_string($var) ) return $parsed[$var] ?? null;
+		if ( !empty($remarkKey) ) parse_str($result, $parsed);
+		if ( $remarkKey === true ) return $parsed;
+		if ( !empty($remarkKey) and is_string($remarkKey) ) return $parsed[$remarkKey] ?? null;
 		// done!
 		return $result;
 	}
+	// alias method (for backward compatibility)
+	public static function getRemark($enumType, $enumKey, $remarkKey=false) { return self::remark($enumType, $enumKey, $remarkKey); }
 
 
 
@@ -377,8 +380,8 @@ class Enum {
 		</description>
 		<io>
 			<in>
-				<string name="$type" />
-				<string name="$key" />
+				<string name="$enumType" />
+				<string name="$enumKey" />
 			</in>
 			<out>
 				<structure name="~return~">
@@ -388,8 +391,8 @@ class Enum {
 		</io>
 	</fusedoc>
 	*/
-	public static function remarkArray($type, $key) { return self::remark($type, $key, true); }
-	public static function parseRemark($type, $key) { return self::remark($type, $key, true); }
+	public static function remarkArray($enumType, $enumKey) { return self::remark($enumType, $enumKey, true); }
+	public static function parseRemark($enumType, $enumKey) { return self::remark($enumType, $enumKey, true); }
 
 
 
@@ -443,8 +446,8 @@ class Enum {
 		</description>
 		<io>
 			<in>
-				<string name="$type" />
-				<string name="$key" />
+				<string name="$enumType" />
+				<string name="$enumKey" />
 				<boolean name="$returnKeyIfNotFound" optional="yes" default="true" comments="return empty string otherwise" />
 			</in>
 			<out>
@@ -453,11 +456,11 @@ class Enum {
 		</io>
 	</fusedoc>
 	*/
-	public static function value($type, $key, $returnKeyIfNotFound=true) {
+	public static function value($enumType, $enumKey, $returnKeyIfNotFound=true) {
 		// get specific item (if any)
-		$item = self::get($type, $key);
+		$item = self::get($enumType, $enumKey);
 		if ( $item === false ) return false;
-		if ( empty($item->id) and $returnKeyIfNotFound ) return $key;
+		if ( empty($item->id) and $returnKeyIfNotFound ) return $enumKey;
 		// convert language (when necessary)
 		if ( class_exists('I18N') ) {
 			$result = I18N::convert($item, 'value');
@@ -469,6 +472,8 @@ class Enum {
 		// done!
 		return $result;
 	}
+	// alias method (for backward compatibility)
+	public static function getValue($enumType, $enumKey, $returnKeyIfNotFound=true) { return self::value($enumType, $enumKey, $returnKeyIfNotFound); }
 
 
 } // class
