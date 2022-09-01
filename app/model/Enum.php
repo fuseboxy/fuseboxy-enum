@@ -296,13 +296,16 @@ class Enum {
 			}
 			return $empty;
 		}
+		// unify & dedupe wildcard (if any)
+		$enumKey = str_replace('%', '*', $enumKey);
+		while ( strpos($enumKey, '**') !== false ) $enumKey = str_replace('**', '*', $enumKey);
 		// get multiple items (when no key specified or key has wildcard)
 		// ===> filter by disabled field (when necessary)
 		// ===> filter by key-with-wildcard (when necessary)
 		$result = array();
 		foreach ( $all as $id => $item ) {
 			$isPassedDisabledCheck = ( !$item->disabled or $includeDisabled );
-			$isPassedWildcardCheck = ( !self::hasWildcard($enumKey) or preg_match('/'.str_replace('%', '*', $enumKey).'/', $item->key) );
+			$isPassedWildcardCheck = ( !self::hasWildcard($enumKey) or preg_match('/'.$enumKey.'/', $item->key) );
 			if ( $isPassedDisabledCheck and $isPassedWildcardCheck ) $result[$id] = $item;
 		}
 		return $result;
