@@ -281,33 +281,52 @@ class Enum {
 	</fusedoc>
 	*/
 	public static function get($enumType, $enumKey=null, $includeDisabled=false) {
+		$result = array();
 		// load all of this type (from cache)
 		$all = self::all($enumType);
 		if ( $all === false ) return false;
-		// get single item (when key specified and no wildcard)
-		// ===> find first match & return right away
-		// ===> otherwise, return empty bean
+		// when key specified & no wildcard
+		// ===> get single item
 		if ( !empty($enumKey) and !self::hasWildcard($enumKey) ) {
-			foreach ( $all as $id => $item ) if ( $item->key == $enumKey and ( !$item->disabled or $includeDisabled ) ) return $item;
-			$empty = ORM::new('enum');
-			if ( $empty === false ) {
-				self::$error = '[Enum::get] '.ORM::error();
-				return false;
+			// return first match (when found in cache)
+			foreach ( $all as $id => $item ) {
+				$isKeyOK = ( $item->key == $enumKey );
+				$isDisabledOK = ( !$item->disabled or $includeDisabled );
+				if ( $isKeyOK and $isDisabledOK and empty($result) ) $result = $item;
 			}
-			return $empty;
-		}
-		// unify & dedupe wildcard (if any)
-		$enumKey = str_replace('%', '*', $enumKey);
-		while ( strpos($enumKey, '**') !== false ) $enumKey = str_replace('**', '*', $enumKey);
-		// get multiple items (when no key specified or key has wildcard)
-		// ===> filter by disabled field (when necessary)
-		// ===> filter by key-with-wildcard (when necessary)
-		$result = array();
-		foreach ( $all as $id => $item ) {
-			$isPassedDisabledCheck = ( !$item->disabled or $includeDisabled );
-			$isPassedWildcardCheck = ( !self::hasWildcard($enumKey) or preg_match('/'.$enumKey.'/', $item->key) );
-			if ( $isPassedDisabledCheck and $isPassedWildcardCheck ) $result[$id] = $item;
-		}
+			// return empty bean (when not found...)
+			if ( empty($result) ) {
+				$result = ORM::new('enum');
+				if ( $result === false ) {
+					self::$error = '[Enum::get] '.ORM::error();
+					return false;
+				}
+			}
+		// when no key specified or key has wildcard
+		// ===> get multiple items
+		} else {
+			// prepare enum-key for regular expression
+			if ( self::hasWildcard($enumKey) ) {
+				$enumKeyPattern = $enumKey;
+				// unify wildcards
+				$enumKeyPattern = str_replace('%', '*', $enumKeyPattern);
+				// dedupe wildcards
+				while ( strpos($enumKeyPattern, '**') !== false ) $enumKeyPattern = str_replace('**', '*', $enumKeyPattern);
+				// escape special characters
+				$spChars = str_split('.+?^$[](){}=!<>|:-#');
+				foreach ( $spChars as $i => $char ) $enumKeyPattern = str_replace($char, '\\'.$char, $enumKeyPattern);
+				// replace wildcard with regex pattern
+				$enumKeyPattern = str_replace('*', '(.+)', $enumKeyPattern);
+			}
+			// check through each item
+			// ===> put matched item into container
+			foreach ( $all as $id => $item ) {
+				$isKeyOK = ( empty($enumKey) or preg_match('/'.$enumKeyPattern.'/', $item->key) );
+				$isDisabledOK = ( !$item->disabled or $includeDisabled );
+				if ( $isKeyOK and $isDisabledOK ) $result[$id] = $item;
+			}
+		} // if-enumKey-noWildcard
+		// done!
 		return $result;
 	}
 
