@@ -24,7 +24,7 @@ Reduce Your DB Complexity
 
 ## Methods
 
-#### Enum::all ( $type )
+#### Enum::all ( $enumType )
 ````
 <fusedoc>
 	<description>
@@ -33,7 +33,7 @@ Reduce Your DB Complexity
 	</description>
 	<io>
 		<in>
-			<string name="$type" />
+			<string name="$enumType" />
 		</in>
 		<out>
 			<structure name="~return~">
@@ -49,7 +49,7 @@ Reduce Your DB Complexity
 </fusedoc>
 ````
 
-#### Enum::array ( $type, $keyWithWildcard=null, $includeDisabled=false )
+#### Enum::array ( $enumType, $enumKeyWithWildcard=null, $includeDisabled=false )
 ````
 <fusedoc>
 	<description>
@@ -57,8 +57,8 @@ Reduce Your DB Complexity
 	</description>
 	<io>
 		<in>
-			<string name="$type" />
-			<string name="$keyWithWildcard" optional="yes" comments="supposed to have wildcard" />
+			<string name="$enumType" />
+			<string name="$enumKeyWithWildcard" optional="yes" comments="supposed to have wildcard" />
 			<boolean name="$includeDisabled" optional="yes" default="false" />
 		</in>
 		<out>
@@ -70,7 +70,7 @@ Reduce Your DB Complexity
 </fusedoc>
 ````
 
-#### Enum::count ( $type, $includeDisabled=false )
+#### Enum::count ( $enumType, $includeDisabled=false )
 ````
 <fusedoc>
 	<description>
@@ -78,7 +78,7 @@ Reduce Your DB Complexity
 	</description>
 	<io>
 		<in>
-			<string name="$type" />
+			<string name="$enumType" />
 			<boolean name="$includeDisabled" optional="yes" default="false" />
 		</in>
 		<out>
@@ -88,7 +88,7 @@ Reduce Your DB Complexity
 </fusedoc>
 ````
 
-#### Enum::exists ( $type, $key )
+#### Enum::exists ( $enumType, $enumKey )
 ````
 <fusedoc>
 	<description>
@@ -96,8 +96,8 @@ Reduce Your DB Complexity
 	</description>
 	<io>
 		<in>
-			<string name="$type" />
-			<string name="$key" />
+			<string name="$enumType" />
+			<string name="$enumKey" />
 		</in>
 		<out>
 			<boolean name="~return~" />
@@ -106,7 +106,7 @@ Reduce Your DB Complexity
 </fusedoc>
 ````
 
-#### Enum::first ( $type, $includeDisabled=false )
+#### Enum::first ( $enumType, $includeDisabled=false )
 ````
 <fusedoc>
 	<description>
@@ -114,7 +114,7 @@ Reduce Your DB Complexity
 	</description>
 	<io>
 		<in>
-			<string name="$type" />
+			<string name="$enumType" />
 			<boolean name="$includeDisabled" optional="yes" default="false" />
 		</in>
 		<out>
@@ -129,7 +129,7 @@ Reduce Your DB Complexity
 </fusedoc>
 ````
 
-#### Enum::get ($type, $key=null, $includeDisabled=false )
+#### Enum::get ($enumType, $enumKey=null, $includeDisabled=false )
 ````
 <fusedoc>
 	<description>
@@ -139,8 +139,8 @@ Reduce Your DB Complexity
 	</description>
 	<io>
 		<in>
-			<string name="$type" />
-			<string name="$key" optional="yes" example="home-applicance|home-%|*-applicance" />
+			<string name="$enumType" />
+			<string name="$enumKey" optional="yes" example="home-applicance|home-%|*-applicance" />
 			<boolean name="$includeDisabled" optional="yes" default="false" />
 		</in>
 		<out>
@@ -162,45 +162,11 @@ Reduce Your DB Complexity
 			</object>
 		</out>
 	</io>
+</fusedoc>
 */
 ````
 
-#### Enum::getAll ( $type )
-````
-Alias of [Enum::all] method
-````
-
-#### Enum::getArray ( $type, $key=null, $includeDisabled=false )
-````
-Alias of [Enum::array] method
-````
-
-#### getFirst ( $type, $includeDisabled=false )
-````
-Alias of [Enum::first] method
-````
-
-#### Enum::getRemark ( $type, $key, $var=false )
-````
-Alias of [Enum::remark] method
-````
-
-#### Enum::getValue ( $type, $key, $returnKeyIfNotFound=true )
-````
-Alias of [Enum::value] method
-````
-
-#### Enum::remarkArray ( $type, $key )
-````
-Alias of [Enum::remark] method with [$var=true]
-````
-
-#### Enum::parseRemark( $type, $key )
-````
-Alias of [Enum::remark] method with [$var=true]
-````
-
-#### Enum::remark ( $type, $key, $var=false )
+#### Enum::remark ( $enumType, $enumKey, $remarkKey=false )
 ````
 <fusedoc>
 	<description>
@@ -209,12 +175,56 @@ Alias of [Enum::remark] method with [$var=true]
 	</description>
 	<io>
 		<in>
-			<string name="$type" />
-			<string name="$key" />
-			<mixed name="$var" default="false" comments="return parsed remark when true; return specific var of parsed remark when string" />
+			<string name="$enumType" />
+			<string name="$enumKey" />
+			<mixed name="$remarkKey" default="false" comments="return parsed remark when true; return specific var of parsed remark when string" />
 		</in>
 		<out>
 			<string name="~return~" />
+		</out>
+	</io>
+</fusedoc>
+````
+
+#### Enum::remarkArray | Enum::parseRemark ( $enumType, $enumKey )
+````
+<fusedoc>
+	<description>
+		obtain remark which parsed from query-string to array
+	</description>
+	<io>
+		<in>
+			<string name="$enumType" />
+			<string name="$enumKey" />
+		</in>
+		<out>
+			<structure name="~return~">
+				<string name="*" />
+			</structure>
+		</out>
+	</io>
+</fusedoc>
+````
+
+#### Enum::toArray ( $beans )
+````
+<fusedoc>
+	<description>
+		convert multiple enum beans to array
+	</description>
+	<io>
+		<in>
+			<structure name="$beans">
+				<string name="type" />
+				<string name="key" />
+				<string name="value" />
+				<string name="remark" />
+			</structure>
+		</in>
+		<out>
+			<structure name="~return~">
+				<string name="~key~" value="~value~" />
+			</structure>
 		</out>
 	</io>
 </fusedoc>
@@ -228,8 +238,8 @@ Alias of [Enum::remark] method with [$var=true]
 	</description>
 	<io>
 		<in>
-			<string name="$type" />
-			<string name="$key" />
+			<string name="$enumType" />
+			<string name="$enumKey" />
 			<boolean name="$returnKeyIfNotFound" optional="yes" default="true" comments="return empty string otherwise" />
 		</in>
 		<out>

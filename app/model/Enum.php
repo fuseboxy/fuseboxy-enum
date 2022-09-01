@@ -278,6 +278,7 @@ class Enum {
 				</object>
 			</out>
 		</io>
+	</fusedoc>
 	*/
 	public static function get($enumType, $enumKey=null, $includeDisabled=false) {
 		// load all of this type (from cache)
