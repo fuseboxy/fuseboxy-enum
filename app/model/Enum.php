@@ -65,7 +65,7 @@ class Enum {
 			$data = ORM::get('enum', ' `type` LIKE ? ORDER BY IFNULL(`seq`, 99999), `key` ASC ', [ $type ]);
 			// validation
 			if ( $data === false ) {
-				self::$error = ORM::error();
+				self::$error = '[Enum::all] '.ORM::error();
 				return false;
 			}
 			// put into cache
@@ -118,7 +118,7 @@ class Enum {
 			if ( class_exists('I18N') ) {
 				$val = I18N::convert($beans, 'value');
 				if ( $val === false ) {
-					self::$error = I18N::error();
+					self::$error = '[Enum::array] '.I18N::error();
 					return false;
 				}
 			} else $val = $beans->value;
@@ -235,7 +235,7 @@ class Enum {
 		// ===> empty bean (when not found)
 		$empty = ORM::new('enum');
 		if ( $empty === false ) {
-			self::$error = ORM::error();
+			self::$error = '[Enum::first] '.ORM::error();
 			return false;
 		}
 		// done!
@@ -289,7 +289,7 @@ class Enum {
 			foreach ( $all as $id => $item ) if ( $item->key == $key and ( !$item->disabled or $includeDisabled ) ) return $item;
 			$empty = ORM::new('enum');
 			if ( $empty === false ) {
-				self::$error = ORM::error();
+				self::$error = '[Enum::get] '.ORM::error();
 				return false;
 			}
 			return $empty;
@@ -356,7 +356,7 @@ class Enum {
 		// convert language (when necessary)
 		$result = class_exists('I18N') ? I18N::convert($item, 'remark') : $item->remark;
 		if ( $result === false and class_exists('I18N') ) {
-			self::$error = I18N::error();
+			self::$error = '[Enum::remark] '.I18N::error();
 			return false;
 		}
 		// parse remark & get specific var (when necessary)
@@ -424,7 +424,7 @@ class Enum {
 			if ( class_exists('I18N') ) {
 				$result[$item->key] = I18N::convert($item, 'value');
 				if ( $result[$item->key] === false ) {
-					self::$error = I18N::error();
+					self::$error = '[Enum::toArray] '.I18N::error();
 					return false;
 				}
 			} else $result[$item->key] = $item->value;
@@ -462,7 +462,7 @@ class Enum {
 		if ( class_exists('I18N') ) {
 			$result = I18N::convert($item, 'value');
 			if ( $result === false ) {
-				self::$error = I18N::error();
+				self::$error = '[Enum::value] '.I18N::error();
 				return false;
 			}
 		} else $result = $item->value;
