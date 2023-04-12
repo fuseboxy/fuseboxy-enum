@@ -12,11 +12,6 @@ class Enum {
 
 
 
-
-
-
-
-
 	/**
 	<fusedoc>
 		<description>
