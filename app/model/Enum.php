@@ -373,7 +373,7 @@ class Enum {
 		$item = self::get($enumType, $enumKey);
 		if ( $item === false ) return false;
 		// convert language (when necessary)
-		$result = class_exists('I18N') ? I18N::convert($item, 'remark') : $item->remark;
+		$result = class_exists('I18N') ? I18N::convert($item, 'remark') : ( $item->remark ?? '');
 		if ( $result === false and class_exists('I18N') ) {
 			self::$error = '[Enum::remark] '.I18N::error();
 			return false;
