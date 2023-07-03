@@ -128,6 +128,35 @@ class Enum {
 	/**
 	<fusedoc>
 		<description>
+			get multiple items as an array & using key as value
+		</description>
+		<io>
+			<in>
+				<string name="$enumType" />
+				<string name="$enumKeyWithWildcard" optional="yes" comments="supposed to have wildcard" />
+				<boolean name="$includeDisabled" optional="yes" default="false" />
+			</in>
+			<out>
+				<structure name="~return~">
+					<string name="~enumKey~" value="~enumKey~" />
+				</structure>
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function arrayKeyAsValue($enumType, $enumKeyWithWildcard=null, $includeDisabled=false) {
+		$result = self::array($enumType, $enumKeyWithWildcard, $includeDisabled);
+		if ( $result === false ) return false;
+		foreach ( $result as $key => $val ) $result[$key] = $key;
+		return $result;
+	}
+
+
+
+
+	/**
+	<fusedoc>
+		<description>
 			clear cached data (for unit test)
 		</description>
 		<io>
