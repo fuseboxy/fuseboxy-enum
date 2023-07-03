@@ -128,7 +128,7 @@ class Enum {
 	/**
 	<fusedoc>
 		<description>
-			get multiple items as an array & using key as value
+			get multiple items as an array (with key as value)
 		</description>
 		<io>
 			<in>
@@ -144,7 +144,7 @@ class Enum {
 		</io>
 	</fusedoc>
 	*/
-	public static function arrayKeyAsValue($enumType, $enumKeyWithWildcard=null, $includeDisabled=false) {
+	public static function arrayWithKeyAsValue($enumType, $enumKeyWithWildcard=null, $includeDisabled=false) {
 		$result = self::array($enumType, $enumKeyWithWildcard, $includeDisabled);
 		if ( $result === false ) return false;
 		foreach ( $result as $key => $val ) $result[$key] = $key;
