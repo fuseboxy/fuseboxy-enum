@@ -1,7 +1,19 @@
-Fuseboxy Enum
-=============
+FUSEBOXY ENUM (2.x)
+===================
 
 Reduce Your DB Complexity
+
+
+--------------------------------------------------
+
+
+## Dependencies
+
+Fuseboxy Core (2.x)
+Fuseboxy Scaffold (2.x)
+
+
+--------------------------------------------------
 
 
 ## Installation
