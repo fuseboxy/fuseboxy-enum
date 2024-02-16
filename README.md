@@ -1,5 +1,5 @@
-Fuseboxy Enum
-=============
+Fuseboxy Enum (1.x)
+===================
 
 Reduce Your DB Complexity
 
