@@ -62,6 +62,7 @@ class Enum {
 			<in>
 				<string name="$enumType" />
 				<structure name="$options">
+					<boolean name="useKeyAsValue" optional="yes" default="~returnToGetMethod~" />
 					<boolean name="includeDisabled" optional="yes" default="~referToGetMethod~" />
 				</structure>
 			</in>
@@ -74,9 +75,7 @@ class Enum {
 	</fusedoc>
 	*/
 	public static function array($enumType, $options=[]) {
-		return self::get($enumType, null, array_merge($options, [
-			'returnKeyValuePairs' => true
-		]));
+		return self::get($enumType, null, array_merge($options, [ 'returnKeyValuePairs' => true ]));
 	}
 
 
@@ -278,6 +277,7 @@ class Enum {
 				<string name="$enumType" />
 				<string name="$enumKey" optional="yes" example="home-applicance|home-%|*-applicance" />
 				<structure name="$options">
+					<boolean name="useKeyAsValue" optional="yes" default="false" />
 					<boolean name="includeDisabled" optional="yes" default="false" />
 					<boolean name="returnKeyValuePairs" optional="yes" default="false" />
 				</structure>
@@ -307,6 +307,7 @@ class Enum {
 		$result = array();
 		// default options
 		if ( is_bool($options) ) $options = array('includeDisabled' => $options);
+		$options['useKeyAsValue'] = $options['useKeyAsValue'] ?? false;
 		$options['includeDisabled'] = $options['includeDisabled'] ?? false;
 		$options['returnKeyValuePairs'] = $options['returnKeyValuePairs'] ?? false;
 		// load all of this type (from cache)
@@ -348,8 +349,11 @@ class Enum {
 				if ( $isKeyOK and $isDisabledOK ) $result[$id] = $item;
 			}
 		} // if-enumKey-noWildcard
+		// convert (when necessary)
+		if ( $options['returnKeyValuePairs'] or $options['useKeyAsValue'] ) $result = self::toArray($result);
+		if ( $options['useKeyAsValue'] ) $result = array_combine(array_keys($result), array_keys($result));
 		// done!
-		return $options['returnKeyValuePairs'] ? self::toArray($result) : $result;
+		return $result;
 	}
 
 
