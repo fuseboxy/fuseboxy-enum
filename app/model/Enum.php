@@ -17,30 +17,18 @@ class Enum {
 		</description>
 		<io>
 			<in>
-				<!-- cache -->
-				<structure name="$cache" scope="self">
-					<structure name="~type~">
-						<object name="~id~" />
-					</structure>
-				</structure>
-				<!-- parameter -->
 				<string name="$enumType" />
 			</in>
 			<out>
-				<!-- cache -->
-				<structure name="$cache" scope="self">
-					<structure name="~type~">
-						<object name="~id~" />
-					</structure>
-				</structure>
-				<!-- return value -->
 				<structure name="~return~">
-					<number name="id" />
-					<string name="type" />
-					<string name="key" />
-					<string name="value" />
-					<string name="remark" />
-					<boolean name="disabled" />
+					<object name="~enumID~" type="enum">
+						<number name="id" />
+						<string name="type" />
+						<string name="key" />
+						<string name="value" />
+						<string name="remark" />
+						<boolean name="disabled" />
+					</object>
 				</object>
 			</out>
 		</io>
