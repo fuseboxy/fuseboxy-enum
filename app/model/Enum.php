@@ -61,8 +61,9 @@ class Enum {
 		<io>
 			<in>
 				<string name="$enumType" />
-				<string name="$enumKeyWithWildcard" optional="yes" comments="supposed to have wildcard" />
-				<boolean name="$includeDisabled" optional="yes" default="false" />
+				<structure name="$options">
+					<boolean name="includeDisabled" optional="yes" default="~referToGetMethod~" />
+				</structure>
 			</in>
 			<out>
 				<structure name="~return~">
@@ -72,21 +73,10 @@ class Enum {
 		</io>
 	</fusedoc>
 	*/
-	public static function array($enumType, $enumKeyWithWildcard=null, $includeDisabled=false) {
-		// load related items
-		$beans = self::get($enumType, $enumKeyWithWildcard, $includeDisabled);
-		// when record has ID
-		// ===> user passed key-without-wildcard
-		// ===> therefore specific enum obtained
-		// ===> turn into array instead
-		if ( !empty($beans->id) ) {
-			$key = $beans->key;
-			// convert language (when necessary)
-			$val = class_exists('I18N') ? I18N::convert($beans, 'value') : $beans->value;
-			return array($key => $val);
-		}
-		// done!
-		return self::toArray($beans);
+	public static function array($enumType, $options=[]) {
+		return self::get($enumType, null, array_merge($options, [
+			'returnKeyValuePairs' => true
+		]));
 	}
 
 
@@ -100,7 +90,6 @@ class Enum {
 		<io>
 			<in>
 				<string name="$enumType" />
-				<string name="$enumKeyWithWildcard" optional="yes" comments="supposed to have wildcard" />
 				<boolean name="$includeDisabled" optional="yes" default="false" />
 			</in>
 			<out>
@@ -111,8 +100,8 @@ class Enum {
 		</io>
 	</fusedoc>
 	*/
-	public static function arrayWithKeyAsValue($enumType, $enumKeyWithWildcard=null, $includeDisabled=false) {
-		$result = self::array($enumType, $enumKeyWithWildcard, $includeDisabled);
+	public static function arrayWithKeyAsValue($enumType, $includeDisabled=false) {
+		$result = self::array($enumType, null, $includeDisabled);
 		foreach ( $result as $key => $val ) $result[$key] = $key;
 		return $result;
 	}
@@ -288,7 +277,10 @@ class Enum {
 			<in>
 				<string name="$enumType" />
 				<string name="$enumKey" optional="yes" example="home-applicance|home-%|*-applicance" />
-				<boolean name="$includeDisabled" optional="yes" default="false" />
+				<structure name="$options">
+					<boolean name="includeDisabled" optional="yes" default="false" />
+					<boolean name="returnKeyValuePairs" optional="yes" default="false" />
+				</structure>
 			</in>
 			<out>
 				<!-- multiple -->
@@ -311,8 +303,12 @@ class Enum {
 		</io>
 	</fusedoc>
 	*/
-	public static function get($enumType, $enumKey=null, $includeDisabled=false) {
+	public static function get($enumType, $enumKey=null, $options=[]) {
 		$result = array();
+		// default options
+		if ( is_bool($options) ) $options = array('includeDisabled' => $options);
+		$options['includeDisabled'] = $options['includeDisabled'] ?? false;
+		$options['returnKeyValuePairs'] = $options['returnKeyValuePairs'] ?? false;
 		// load all of this type (from cache)
 		$all = self::all($enumType);
 		// when key specified & no wildcard
@@ -321,7 +317,7 @@ class Enum {
 			// return first match (when found in cache)
 			foreach ( $all as $id => $item ) {
 				$isKeyOK = ( $item->key == $enumKey );
-				$isDisabledOK = ( !$item->disabled or $includeDisabled );
+				$isDisabledOK = ( !$item->disabled or $options['includeDisabled'] );
 				if ( $isKeyOK and $isDisabledOK and empty($result) ) $result = $item;
 			}
 			// return empty bean (when not found...)
@@ -348,12 +344,12 @@ class Enum {
 			// ===> put matched item into container
 			foreach ( $all as $id => $item ) {
 				$isKeyOK = ( empty($enumKey) or preg_match('/'.$enumKeyPattern.'/', $item->key) );
-				$isDisabledOK = ( !$item->disabled or $includeDisabled );
+				$isDisabledOK = ( !$item->disabled or $options['includeDisabled'] );
 				if ( $isKeyOK and $isDisabledOK ) $result[$id] = $item;
 			}
 		} // if-enumKey-noWildcard
 		// done!
-		return $result;
+		return $options['returnKeyValuePairs'] ? self::toArray($result) : $result;
 	}
 
 
