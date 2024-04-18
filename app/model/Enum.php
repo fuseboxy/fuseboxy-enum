@@ -477,7 +477,10 @@ class Enum {
 			<in>
 				<string name="$enumType" />
 				<string name="$enumKey" />
-				<boolean name="$returnKeyIfNotFound" optional="yes" default="true" comments="return empty string otherwise" />
+				<structure name="$options">
+					<boolean name="includeDisabled" optional="yes" default="~referToGetMethod~" />
+					<boolean name="returnKeyWhenNotFound" optional="yes" default="true" />
+				</structure>
 			</in>
 			<out>
 				<string name="~return~" />
@@ -485,14 +488,15 @@ class Enum {
 		</io>
 	</fusedoc>
 	*/
-	public static function value($enumType, $enumKey, $returnKeyIfNotFound=true) {
-		// get specific item (if any)
-		$item = self::get($enumType, $enumKey);
-		if ( empty($item->id) and $returnKeyIfNotFound ) return $enumKey;
+	public static function value($enumType, $enumKey, $options=[]) {
+		// default options
+		$options['returnKeyWhenNotFound'] = $options['returnKeyWhenNotFound'] ?? true;
+		// load specific item
+		$bean = self::get($enumType, $enumKey, $options);
+		// return key or null when not found
+		if ( is_null($bean) ) return $options['returnKeyWhenNotFound'] ? $enumKey : null;
 		// convert language (when necessary)
-		$result = class_exists('I18N') ? I18N::convert($item, 'value') : $item->value;
-		// done!
-		return $result;
+		return class_exists('I18N') ? I18N::convert($bean, 'value') : $bean->value;
 	}
 
 
