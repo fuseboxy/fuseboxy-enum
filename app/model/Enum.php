@@ -350,7 +350,7 @@ class Enum {
 			}
 		} // if-enumKey-noWildcard
 		// convert (when necessary)
-		if ( $options['returnKeyValuePairs'] or $options['useKeyAsValue'] ) $result = self::toArray($result);
+		if ( $options['returnKeyValuePairs'] or $options['useKeyAsValue'] ) $result = self::toKeyValuePairs($result);
 		if ( $options['useKeyAsValue'] ) $result = array_combine(array_keys($result), array_keys($result));
 		// done!
 		return $result;
@@ -461,7 +461,7 @@ class Enum {
 		</io>
 	</fusedoc>
 	*/
-	public static function toArray($beans) {
+	public static function toKeyValuePairs($beans) {
 		$result = array();
 		// go through each item
 		foreach ( $beans as $item ) if ( !empty($item->id) ) {
