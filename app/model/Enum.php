@@ -84,33 +84,6 @@ class Enum {
 	/**
 	<fusedoc>
 		<description>
-			get multiple items as an array (with key as value)
-		</description>
-		<io>
-			<in>
-				<string name="$enumType" />
-				<boolean name="$includeDisabled" optional="yes" default="false" />
-			</in>
-			<out>
-				<structure name="~return~">
-					<string name="~enumKey~" value="~enumKey~" />
-				</structure>
-			</out>
-		</io>
-	</fusedoc>
-	*/
-	public static function arrayWithKeyAsValue($enumType, $includeDisabled=false) {
-		$result = self::array($enumType, null, $includeDisabled);
-		foreach ( $result as $key => $val ) $result[$key] = $key;
-		return $result;
-	}
-
-
-
-
-	/**
-	<fusedoc>
-		<description>
 			clear cached data (for unit test)
 		</description>
 		<io>
