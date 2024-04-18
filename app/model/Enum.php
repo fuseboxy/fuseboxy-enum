@@ -2,12 +2,8 @@
 class Enum {
 
 
-	// get (latest) error message
-	private static $error;
-	public static function error() { return self::$error; }
-	// cache for current request
+	// local cache container
 	private static $cache = array();
-	public static function cache($enumType) { return self::$cache[$enumType] ?? null; }
 
 
 
@@ -15,8 +11,9 @@ class Enum {
 	/**
 	<fusedoc>
 		<description>
-			get all items (included disabled) of specific type
-			load from cache when available
+			get all items of specific type
+			===> including disabled items
+			===> load from cache when available
 		</description>
 		<io>
 			<in>
@@ -50,26 +47,19 @@ class Enum {
 	</fusedoc>
 	*/
 	public static function all($enumType) {
-		// load from database (when necessary)
-		if ( !self::cache($enumType) ) {
-			$data = ORM::get('enum', ' `type` LIKE ? ORDER BY IFNULL(`seq`, 99999), `key` ASC ', [ $enumType ]);
-			// validation
-			if ( $data === false ) {
-				self::$error = '[Enum::all] '.ORM::error();
-				return false;
-			}
-			// put into cache
-			foreach ( $data as $id => $item ) {
-				if ( !self::cache($item->type) ) self::$cache[$item->type] = array();
-				self::$cache[$item->type][$id] = $item;
-			}
-		}
-		// if still not found
-		// ===> type not found in database
-		// ===> return empty array
-		if ( !self::cache($enumType) ) return array();
+		// load from cache (when available)
+		$data = self::cache($enumType);
+		if ( !is_null($data) ) return $data;
+		// when cache not found
+		// ===> load from database
+		// ===> put data into local cache
+		$filter = ' `type` LIKE ? ORDER BY IFNULL(`seq`, 99999), `key` ASC ';
+		$param = array($enumType);
+		$data = ORM::get('enum', $filter, $param);
+		// put into cache
+		self::cache($enumType, $data);
 		// done!
-		return self::cache($enumType);
+		return $data;
 	}
 
 
@@ -97,7 +87,6 @@ class Enum {
 	public static function array($enumType, $enumKeyWithWildcard=null, $includeDisabled=false) {
 		// load related items
 		$beans = self::get($enumType, $enumKeyWithWildcard, $includeDisabled);
-		if ( $beans === false ) return false;
 		// when record has ID
 		// ===> user passed key-without-wildcard
 		// ===> therefore specific enum obtained
@@ -105,13 +94,7 @@ class Enum {
 		if ( !empty($beans->id) ) {
 			$key = $beans->key;
 			// convert language (when necessary)
-			if ( class_exists('I18N') ) {
-				$val = I18N::convert($beans, 'value');
-				if ( $val === false ) {
-					self::$error = '[Enum::array] '.I18N::error();
-					return false;
-				}
-			} else $val = $beans->value;
+			$val = class_exists('I18N') ? I18N::convert($beans, 'value') : $beans->value;
 			return array($key => $val);
 		}
 		// done!
@@ -142,7 +125,6 @@ class Enum {
 	*/
 	public static function arrayWithKeyAsValue($enumType, $enumKeyWithWildcard=null, $includeDisabled=false) {
 		$result = self::array($enumType, $enumKeyWithWildcard, $includeDisabled);
-		if ( $result === false ) return false;
 		foreach ( $result as $key => $val ) $result[$key] = $key;
 		return $result;
 	}
@@ -176,6 +158,55 @@ class Enum {
 	/**
 	<fusedoc>
 		<description>
+			getter & setter of local cache
+		</description>
+		<io>
+			<in>
+				<!-- cache -->
+				<structure name="$cache" scope="self">
+					<structure name="~type~">
+						<object name="~id~" />
+					</structure>
+				</structure>
+				<!-- parameter -->
+				<string name="$enumType" />
+			</in>
+			<out>
+				<!-- cache -->
+				<structure name="$cache" scope="self">
+					<structure name="~type~">
+						<object name="~id~" />
+					</structure>
+				</structure>
+				<!-- return value -->
+				<structure name="~return~">
+					<number name="id" />
+					<string name="type" />
+					<string name="key" />
+					<string name="value" />
+					<string name="remark" />
+					<boolean name="disabled" />
+				</object>
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function cache($type=null, $data=null) {
+		// getter (all)
+		if ( is_null($type) ) return self::$cache;
+		// getter (specific)
+		if ( is_null($data) ) return self::$cache[$type] ?? null;
+		// setter
+		self::$cache[$type] = $data;
+		return $data;
+	}
+
+
+
+
+	/**
+	<fusedoc>
+		<description>
 			get number of items by type
 		</description>
 		<io>
@@ -191,7 +222,6 @@ class Enum {
 	*/
 	public static function count($enumType, $includeDisabled=false) {
 		$items = self::get($enumType, null, $includeDisabled);
-		if ( $items === false ) return false;
 		return count($items);
 	}
 
@@ -246,17 +276,12 @@ class Enum {
 	public static function first($enumType, $includeDisabled=false) {
 		// load all of this type (from cache)
 		$all = self::all($enumType);
-		if ( $all === false ) return false;
 		// find first match
 		// ===> return right away
 		foreach ( $all as $id => $item ) if ( !$item->disabled or $includeDisabled ) return $item;
 		// when no match
 		// ===> empty bean (when not found)
 		$empty = ORM::new('enum');
-		if ( $empty === false ) {
-			self::$error = '[Enum::first] '.ORM::error();
-			return false;
-		}
 		// done!
 		return $empty;
 	}
@@ -302,7 +327,6 @@ class Enum {
 		$result = array();
 		// load all of this type (from cache)
 		$all = self::all($enumType);
-		if ( $all === false ) return false;
 		// when key specified & no wildcard
 		// ===> get single item
 		if ( !empty($enumKey) and !self::hasWildcard($enumKey) ) {
@@ -315,10 +339,6 @@ class Enum {
 			// return empty bean (when not found...)
 			if ( empty($result) ) {
 				$result = ORM::new('enum');
-				if ( $result === false ) {
-					self::$error = '[Enum::get] '.ORM::error();
-					return false;
-				}
 			}
 		// when no key specified or key has wildcard
 		// ===> get multiple items
@@ -394,13 +414,8 @@ class Enum {
 	public static function remark($enumType, $enumKey, $remarkKey=false) {
 		// get specific item (if any)
 		$item = self::get($enumType, $enumKey);
-		if ( $item === false ) return false;
 		// convert language (when necessary)
 		$result = class_exists('I18N') ? I18N::convert($item, 'remark') : ( $item->remark ?? '');
-		if ( $result === false and class_exists('I18N') ) {
-			self::$error = '[Enum::remark] '.I18N::error();
-			return false;
-		}
 		// parse remark & get specific var (when necessary)
 		if ( !empty($remarkKey) ) parse_str($result, $parsed);
 		if ( $remarkKey === true ) return $parsed;
@@ -463,13 +478,7 @@ class Enum {
 		// go through each item
 		foreach ( $beans as $item ) if ( !empty($item->id) ) {
 			// convert language (when necessary)
-			if ( class_exists('I18N') ) {
-				$result[$item->key] = I18N::convert($item, 'value');
-				if ( $result[$item->key] === false ) {
-					self::$error = '[Enum::toArray] '.I18N::error();
-					return false;
-				}
-			} else $result[$item->key] = $item->value;
+			$result[$item->key] = class_exists('I18N') ? I18N::convert($item, 'value') : $item->value;
 		}
 		// done!
 		return $result;
@@ -498,16 +507,9 @@ class Enum {
 	public static function value($enumType, $enumKey, $returnKeyIfNotFound=true) {
 		// get specific item (if any)
 		$item = self::get($enumType, $enumKey);
-		if ( $item === false ) return false;
 		if ( empty($item->id) and $returnKeyIfNotFound ) return $enumKey;
 		// convert language (when necessary)
-		if ( class_exists('I18N') ) {
-			$result = I18N::convert($item, 'value');
-			if ( $result === false ) {
-				self::$error = '[Enum::value] '.I18N::error();
-				return false;
-			}
-		} else $result = $item->value;
+		$result = class_exists('I18N') ? I18N::convert($item, 'value') : $item->value;
 		// done!
 		return $result;
 	}
