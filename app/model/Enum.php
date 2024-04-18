@@ -209,10 +209,12 @@ class Enum {
 		<io>
 			<in>
 				<string name="$enumType" />
-				<boolean name="$includeDisabled" optional="yes" default="false" />
+				<structure name="$options">
+					<boolean name="includeDisabled" optional="yes" default="~referToGetMethod~" />
+				</structure>
 			</in>
 			<out>
-				<object name="~return~">
+				<object name="~return~" type="enum">
 					<string name="type" />
 					<string name="key" />
 					<string name="value" />
@@ -222,17 +224,35 @@ class Enum {
 		</io>
 	</fusedoc>
 	*/
-	public static function first($enumType, $includeDisabled=false) {
-		// load all of this type (from cache)
-		$all = self::all($enumType);
-		// find first match
-		// ===> return right away
-		foreach ( $all as $id => $item ) if ( !$item->disabled or $includeDisabled ) return $item;
-		// when no match
-		// ===> empty bean (when not found)
-		$empty = ORM::new('enum');
-		// done!
-		return $empty;
+	public static function first($enumType, $options=[]) {
+		$items = self::get($enumType, null, $options);
+		return $items[array_key_first($items)] ?? null;
+	}
+
+
+
+
+	/**
+	<fusedoc>
+		<description>
+			get first item key of specific type
+		</description>
+		<io>
+			<in>
+				<string name="$enumType" />
+				<structure name="$options">
+					<boolean name="includeDisabled" optional="yes" default="~referToGetMethod~" />
+				</structure>
+			</in>
+			<out>
+				<string name="~return~" value="~enumKey~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function firstKey($enumType, $options=[]) {
+		$firstItem = self::first($enumType, $options);
+		return $firstItem->key ?? null;
 	}
 
 
