@@ -71,8 +71,6 @@ class Enum {
 		// done!
 		return self::cache($enumType);
 	}
-	// alias method (for backward compatibility)
-	public static function getAll($enumType) { return self::all($enumType); }
 
 
 
@@ -119,8 +117,6 @@ class Enum {
 		// done!
 		return self::toArray($beans);
 	}
-	// alias method (for backward compatibility)
-	public static function getArray($enumType, $enumKey=null, $includeDisabled=false) { return self::array($enumType, $enumKey, $includeDisabled); }
 
 
 
@@ -264,8 +260,6 @@ class Enum {
 		// done!
 		return $empty;
 	}
-	// alias method (for backward compatibility)
-	public static function getFirst($enumType, $includeDisabled=false) { return self::first($enumType, $includeDisabled); }
 
 
 
@@ -414,8 +408,6 @@ class Enum {
 		// done!
 		return $result;
 	}
-	// alias method (for backward compatibility)
-	public static function getRemark($enumType, $enumKey, $remarkKey=false) { return self::remark($enumType, $enumKey, $remarkKey); }
 
 
 
@@ -519,8 +511,6 @@ class Enum {
 		// done!
 		return $result;
 	}
-	// alias method (for backward compatibility)
-	public static function getValue($enumType, $enumKey, $returnKeyIfNotFound=true) { return self::value($enumType, $enumKey, $returnKeyIfNotFound); }
 
 
 } // class
