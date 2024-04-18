@@ -84,29 +84,6 @@ class Enum {
 	/**
 	<fusedoc>
 		<description>
-			clear cached data (for unit test)
-		</description>
-		<io>
-			<in>
-				<structure name="$cache" scope="self" />
-			</in>
-			<out>
-				<boolean name="~return~" />
-			</out>
-		</io>
-	</fusedoc>
-	*/
-	public static function clearCache() {
-		self::$cache = array();
-		return true;
-	}
-
-
-
-
-	/**
-	<fusedoc>
-		<description>
 			getter & setter of local cache
 		</description>
 		<io>
@@ -156,12 +133,37 @@ class Enum {
 	/**
 	<fusedoc>
 		<description>
+			clear cached data (for unit test)
+		</description>
+		<io>
+			<in>
+				<structure name="$cache" scope="self" />
+			</in>
+			<out>
+				<boolean name="~return~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function clearCache() {
+		self::$cache = array();
+		return true;
+	}
+
+
+
+
+	/**
+	<fusedoc>
+		<description>
 			get number of items by type
 		</description>
 		<io>
 			<in>
 				<string name="$enumType" />
-				<boolean name="$includeDisabled" optional="yes" default="false" />
+				<structure name="$options">
+					<boolean name="includeDisabled" optional="yes" default="~referToGetMethod~" />
+				</structure>
 			</in>
 			<out>
 				<number name="~return~" />
@@ -169,9 +171,8 @@ class Enum {
 		</io>
 	</fusedoc>
 	*/
-	public static function count($enumType, $includeDisabled=false) {
-		$items = self::get($enumType, null, $includeDisabled);
-		return count($items);
+	public static function count($enumType, $options=[]) {
+		return count(self::get($enumType, null, $options));
 	}
 
 
