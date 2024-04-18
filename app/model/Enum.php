@@ -195,8 +195,7 @@ class Enum {
 	</fusedoc>
 	*/
 	public static function exists($enumType, $enumKey) {
-		$item = self::get($enumType, $enumKey);
-		return !empty($item->id);
+		return !is_null(self::get($enumType, $enumKey));
 	}
 
 
@@ -257,17 +256,17 @@ class Enum {
 				</structure>
 			</in>
 			<out>
-				<!-- multiple -->
-				<structure name="~return~" optional="yes">
-					<object name="~id~">
+				<!-- return : multiple -->
+				<structure name="~return~" optional="yes" oncondition="when only {enumType} specified">
+					<object name="~id~" type="enum">
 						<string name="type" example="PRODUCT_CATEGORY" />
 						<string name="key" example="home-appliance" />
 						<string name="value" example="Home Appliances" />
 						<string name="remark" />
 					</object>
 				</structure>
-				<!-- single -->
-				<object name="~return~">
+				<!-- return : single -->
+				<object name="~return~" type="enum" optional="yes" oncondition="when both {enumType & enumKey} specified" comments="return {null} when not found">
 					<string name="type" />
 					<string name="key" />
 					<string name="value" />
@@ -295,9 +294,9 @@ class Enum {
 				$isDisabledOK = ( !$item->disabled or $options['includeDisabled'] );
 				if ( $isKeyOK and $isDisabledOK and empty($result) ) $result = $item;
 			}
-			// return empty bean (when not found...)
+			// return null (when not found...)
 			if ( empty($result) ) {
-				$result = ORM::new('enum');
+				$result = null;
 			}
 		// when no key specified or key has wildcard
 		// ===> get multiple items
