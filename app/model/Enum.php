@@ -62,8 +62,8 @@ class Enum {
 			<in>
 				<string name="$enumType" />
 				<structure name="$options">
-					<boolean name="useKeyAsValue" optional="yes" default="~returnToGetMethod~" />
 					<boolean name="includeDisabled" optional="yes" default="~referToGetMethod~" />
+					<boolean name="useKeyAsValue" optional="yes" default="~returnToGetMethod~" />
 				</structure>
 			</in>
 			<out>
@@ -261,18 +261,17 @@ class Enum {
 	/**
 	<fusedoc>
 		<description>
-			get single item by type & key
 			get multiple items by type
-			get multiple items by type & key-with-wildcard
+			get single item by type & key
 		</description>
 		<io>
 			<in>
 				<string name="$enumType" />
 				<string name="$enumKey" optional="yes" example="home-applicance|home-%|*-applicance" />
 				<structure name="$options">
-					<boolean name="useKeyAsValue" optional="yes" default="false" />
 					<boolean name="includeDisabled" optional="yes" default="false" />
 					<boolean name="returnKeyValuePairs" optional="yes" default="false" />
+					<boolean name="useKeyAsValue" optional="yes" default="false" />
 				</structure>
 			</in>
 			<out>
@@ -297,78 +296,27 @@ class Enum {
 	</fusedoc>
 	*/
 	public static function get($enumType, $enumKey=null, $options=[]) {
-		$result = array();
 		// default options
-		if ( is_bool($options) ) $options = array('includeDisabled' => $options);
-		$options['useKeyAsValue'] = $options['useKeyAsValue'] ?? false;
-		$options['includeDisabled'] = $options['includeDisabled'] ?? false;
+		$options['includeDisabled']     = $options['includeDisabled']     ?? false;
 		$options['returnKeyValuePairs'] = $options['returnKeyValuePairs'] ?? false;
-		// load all of this type (from cache)
-		$all = self::all($enumType);
-		// when key specified & no wildcard
-		// ===> get single item
-		if ( !empty($enumKey) and !self::hasWildcard($enumKey) ) {
-			// return first match (when found in cache)
-			foreach ( $all as $id => $item ) {
-				$isKeyOK = ( $item->key == $enumKey );
-				$isDisabledOK = ( !$item->disabled or $options['includeDisabled'] );
-				if ( $isKeyOK and $isDisabledOK and empty($result) ) $result = $item;
-			}
-			// return null (when not found...)
-			if ( empty($result) ) {
-				$result = null;
-			}
-		// when no key specified or key has wildcard
-		// ===> get multiple items
-		} else {
-			// prepare enum-key for regular expression
-			if ( self::hasWildcard($enumKey) ) {
-				$enumKeyPattern = $enumKey;
-				// unify wildcards
-				$enumKeyPattern = str_replace('%', '*', $enumKeyPattern);
-				// dedupe wildcards
-				while ( strpos($enumKeyPattern, '**') !== false ) $enumKeyPattern = str_replace('**', '*', $enumKeyPattern);
-				// escape special characters
-				$spChars = str_split('.+?^$[](){}=!<>|:-#');
-				foreach ( $spChars as $i => $char ) $enumKeyPattern = str_replace($char, '\\'.$char, $enumKeyPattern);
-				// replace wildcard with regex pattern
-				$enumKeyPattern = str_replace('*', '(.+)', $enumKeyPattern);
-			}
-			// check through each item
-			// ===> put matched item into container
-			foreach ( $all as $id => $item ) {
-				$isKeyOK = ( empty($enumKey) or preg_match('/'.$enumKeyPattern.'/', $item->key) );
-				$isDisabledOK = ( !$item->disabled or $options['includeDisabled'] );
-				if ( $isKeyOK and $isDisabledOK ) $result[$id] = $item;
-			}
-		} // if-enumKey-noWildcard
-		// convert (when necessary)
+		$options['useKeyAsValue']       = $options['useKeyAsValue']       ?? false;
+		// validation
+		if ( empty($enumType) ) throw new Exception('Enum type is required');
+		// load all of this type
+		// ===> filter by options
+		// ===> convert by options
+		$result = self::all($enumType);
+		$result = array_filter(array_map(fn($item) => ( !$item->disabled or $options['includeDisabled'] ) ? $item : null, $result));
 		if ( $options['returnKeyValuePairs'] or $options['useKeyAsValue'] ) $result = self::toKeyValuePairs($result);
 		if ( $options['useKeyAsValue'] ) $result = array_combine(array_keys($result), array_keys($result));
-		// done!
-		return $result;
-	}
-
-
-
-
-	/**
-	<fusedoc>
-		<description>
-			check whether the string has SQL wildcard character
-		</description>
-		<io>
-			<in>
-				<string name="$str" example="home-%|home-*" />
-			</in>
-			<out>
-				<boolean name="~return~" />
-			</out>
-		</io>
-	</fusedoc>
-	*/
-	public static function hasWildcard($str) {
-		return ( strpos($str, '%') !== false ) or ( strpos($str, '*') !== false );
+		// when key not specified
+		// ===> return multiple items
+		if ( empty($enumKey) ) return $result;
+		// otherwise
+		// ===> return single item (first match)
+		// ===> return null when not found
+		$result = array_filter(array_map(fn($item) => ( $item->key == $enumKey ) ? $item : null, $result));
+		return array_shift($result);
 	}
 
 
