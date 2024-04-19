@@ -324,32 +324,46 @@ class Enum {
 	/**
 	<fusedoc>
 		<description>
-			get remark of specific enum item (or specific var in remark)
-			===> simply return empty when not found
+			get remark of specific enum item (or parse remark as query string)
 		</description>
 		<io>
 			<in>
 				<string name="$enumType" />
 				<string name="$enumKey" />
-				<mixed name="$remarkKey" default="false" comments="return parsed remark when true; return specific var of parsed remark when string" />
+				<structure name="$options">
+					<string name="remarkKey" optional="yes" />
+					<boolean name="parseRemark" optional="yes" default="force {true} when {remarkKey} specified, otherwise {false}" />
+				</structure>
 			</in>
 			<out>
-				<string name="~return~" />
+				<string name="~return~" optional="yes" oncondition="when {parseRemark=false}" />
+				<structure name="~return~" optional="yes" oncondition="when {parseRemark=true}">
+					<string name="~remarkKey~" />
+				</structure>
 			</out>
 		</io>
 	</fusedoc>
 	*/
-	public static function remark($enumType, $enumKey, $remarkKey=false) {
-		// get specific item (if any)
+	public static function remark($enumType, $enumKey, $options=[]) {
+		// when options is string
+		// ===> shorthand for {remarkKey} option
+		if ( is_string($options) ) $options = array('remarkKey' => $options);
+		// default options
+		// ===> always parse remark when remark key specified
+		$options['remarkKey'] = $options['remarkKey'] ?? null;
+		$options['parseRemark'] = !empty($options['remarkKey']) ?: $options['parseRemark'] ?? false;
+		// get specific enum item
 		$item = self::get($enumType, $enumKey);
-		// convert language (when necessary)
-		$result = class_exists('I18N') ? I18N::convert($item, 'remark') : ( $item->remark ?? '');
-		// parse remark & get specific var (when necessary)
-		if ( !empty($remarkKey) ) parse_str($result, $parsed);
-		if ( $remarkKey === true ) return $parsed;
-		if ( !empty($remarkKey) and is_string($remarkKey) ) return $parsed[$remarkKey] ?? null;
+		// obtain remark according to locale (when necessary)
+		$enumRemark = class_exists('I18N') ? I18N::convert($item, 'remark') : ( $item->remark ?? null );
+		// when {parseRemark} specified
+		// ===> parse remark as query string
+		if ( $options['parseRemark'] ) parse_str($enumRemark, $enumRemark);
+		// when {remarkKey} specified
+		// ===> return specific remark item
+		if ( !empty($options['remarkKey']) ) return $enumRemark[$options['remarkKey']] ?? null;
 		// done!
-		return $result;
+		return $enumRemark;
 	}
 
 
@@ -358,7 +372,7 @@ class Enum {
 	/**
 	<fusedoc>
 		<description>
-			alias methods to get parsed remark of specific enum item
+			get parsed remark of specific enum item
 		</description>
 		<io>
 			<in>
@@ -367,14 +381,15 @@ class Enum {
 			</in>
 			<out>
 				<structure name="~return~">
-					<string name="*" />
+					<string name="~remarkKey~" />
 				</structure>
 			</out>
 		</io>
 	</fusedoc>
 	*/
-	public static function remarkArray($enumType, $enumKey) { return self::remark($enumType, $enumKey, true); }
-	public static function parseRemark($enumType, $enumKey) { return self::remark($enumType, $enumKey, true); }
+	public static function parseRemark($enumType, $enumKey) {
+		return self::remark($enumType, $enumKey, [ 'parseRemark' => true ]);
+	}
 
 
 
