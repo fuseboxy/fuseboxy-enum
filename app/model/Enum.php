@@ -74,7 +74,7 @@ class Enum {
 	</fusedoc>
 	*/
 	public static function array($enumType, $options=[]) {
-		return self::get($enumType, null, array_merge($options, [ 'returnKeyValuePairs' => true ]));
+		return self::get($enumType, null, array_merge($options, [ 'returnKVP' => true ]));
 	}
 
 
@@ -269,8 +269,8 @@ class Enum {
 				<string name="$enumKey" optional="yes" example="home-applicance|home-%|*-applicance" />
 				<structure name="$options">
 					<boolean name="includeDisabled" optional="yes" default="false" />
-					<boolean name="returnKeyValuePairs" optional="yes" default="false" />
-					<boolean name="returnKKP" optional="yes" default="false" />
+					<boolean name="returnKVP" optional="yes" default="false" comments="return key-value pairs" />
+					<boolean name="returnKKP" optional="yes" default="false" comments="return key-key pairs" />
 				</structure>
 			</in>
 			<out>
@@ -297,7 +297,7 @@ class Enum {
 	public static function get($enumType, $enumKey=null, $options=[]) {
 		// default options
 		$options['includeDisabled'] = $options['includeDisabled'] ?? false;
-		$options['returnKeyValuePairs'] = $options['returnKeyValuePairs'] ?? false;
+		$options['returnKVP'] = $options['returnKVP'] ?? false;
 		$options['returnKKP'] = $options['returnKKP'] ?? false;
 		// validation
 		if ( empty($enumType) ) throw new Exception('Enum type is required');
@@ -306,7 +306,7 @@ class Enum {
 		// ===> convert by options
 		$result = self::all($enumType);
 		$result = array_filter(array_map(fn($item) => ( !$item->disabled or $options['includeDisabled'] ) ? $item : null, $result));
-		if ( $options['returnKeyValuePairs'] ) $result = self::toKeyValuePairs($result);
+		if ( $options['returnKVP'] ) $result = self::toKVP($result);
 		if ( $options['returnKKP'] ) $result = self::toKKP($result);
 		// when key not specified
 		// ===> return multiple items
@@ -382,47 +382,11 @@ class Enum {
 	/**
 	<fusedoc>
 		<description>
-			convert multiple enum beans to array
-		</description>
-		<io>
-			<in>
-				<structure name="$beans">
-					<string name="type" />
-					<string name="key" />
-					<string name="value" />
-					<string name="remark" />
-				</structure>
-			</in>
-			<out>
-				<structure name="~return~">
-					<string name="~key~" value="~value~" />
-				</structure>
-			</out>
-		</io>
-	</fusedoc>
-	*/
-	public static function toKeyValuePairs($beans) {
-		$result = array();
-		// go through each item
-		foreach ( $beans as $item ) if ( !empty($item->id) ) {
-			// convert language (when necessary)
-			$result[$item->key] = class_exists('I18N') ? I18N::convert($item, 'value') : $item->value;
-		}
-		// done!
-		return $result;
-	}
-
-
-
-
-	/**
-	<fusedoc>
-		<description>
 			convert array-of-object (beans) or array-of-string (key-value pairs) to key-key pairs
 		</description>
 		<io>
 			<in>
-				<structure name="$beansOrKVP">
+				<structure name="$data">
 					<object name="~id~" type="enum">
 						<string name="type" />
 						<string name="key" />
@@ -441,11 +405,44 @@ class Enum {
 	*/
 	public static function toKKP($data) {
 		if ( empty($data) ) return [];
-		// extract keys from data
 		$isArrayOfObject = is_object($data[array_key_first($data)]);
 		$enumKeys = $isArrayOfObject ? array_map(fn($item) => $item->key, $data) : array_keys($data);
-		// done!
 		return array_combine($enumKeys, $enumKeys);
+	}
+
+
+
+
+	/**
+	<fusedoc>
+		<description>
+			convert array-of-object (beans) to key-value pairs
+		</description>
+		<io>
+			<in>
+				<structure name="$beans">
+					<object name="~id~" type="enum">
+						<string name="type" />
+						<string name="key" />
+						<string name="value" />
+						<string name="value__{locale}" optional="yes" />
+						<string name="remark" />
+						<string name="remark__{locale}" optional="yes" />
+					</object>
+				</structure>
+			</in>
+			<out>
+				<structure name="~return~">
+					<string name="~key~" value="~value~" />
+				</structure>
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function toKVP($beans) {
+		$enumKeys = array_map(fn($item) => $item->key, $beans);
+		$enumValues = array_map(fn($item) => class_exists('I18N') ? I18N::convert($item, 'value') : $item->value, $beans);
+		return array_combine($enumKeys, $enumValues);
 	}
 
 
