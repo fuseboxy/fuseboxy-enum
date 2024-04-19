@@ -459,7 +459,7 @@ class Enum {
 	*/
 	public static function toKVP($beans) {
 		$enumKeys = array_map(fn($item, $key) => $item->key ?? $key, $beans, array_keys($beans));
-		$enumValues = array_map(fn($item) => class_exists('I18N') ? I18N::convert($item, 'value') : ( $item->value ?? null ), $beans);
+		$enumValues = array_map(fn($item) => ( is_object($item) and class_exists('I18N') ) ? I18N::convert($item, 'value') : ( $item->value ?? null ), $beans);
 		return array_combine($enumKeys, $enumValues);
 	}
 
