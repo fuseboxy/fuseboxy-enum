@@ -63,7 +63,6 @@ class Enum {
 				<string name="$enumType" />
 				<structure name="$options">
 					<boolean name="includeDisabled" optional="yes" default="~referToGetMethod~" />
-					<boolean name="useKeyAsValue" optional="yes" default="~returnToGetMethod~" />
 				</structure>
 			</in>
 			<out>
@@ -271,7 +270,7 @@ class Enum {
 				<structure name="$options">
 					<boolean name="includeDisabled" optional="yes" default="false" />
 					<boolean name="returnKeyValuePairs" optional="yes" default="false" />
-					<boolean name="useKeyAsValue" optional="yes" default="false" />
+					<boolean name="returnKKP" optional="yes" default="false" />
 				</structure>
 			</in>
 			<out>
@@ -297,9 +296,9 @@ class Enum {
 	*/
 	public static function get($enumType, $enumKey=null, $options=[]) {
 		// default options
-		$options['includeDisabled']     = $options['includeDisabled']     ?? false;
+		$options['includeDisabled'] = $options['includeDisabled'] ?? false;
 		$options['returnKeyValuePairs'] = $options['returnKeyValuePairs'] ?? false;
-		$options['useKeyAsValue']       = $options['useKeyAsValue']       ?? false;
+		$options['returnKKP'] = $options['returnKKP'] ?? false;
 		// validation
 		if ( empty($enumType) ) throw new Exception('Enum type is required');
 		// load all of this type
@@ -307,8 +306,8 @@ class Enum {
 		// ===> convert by options
 		$result = self::all($enumType);
 		$result = array_filter(array_map(fn($item) => ( !$item->disabled or $options['includeDisabled'] ) ? $item : null, $result));
-		if ( $options['returnKeyValuePairs'] or $options['useKeyAsValue'] ) $result = self::toKeyValuePairs($result);
-		if ( $options['useKeyAsValue'] ) $result = array_combine(array_keys($result), array_keys($result));
+		if ( $options['returnKeyValuePairs'] ) $result = self::toKeyValuePairs($result);
+		if ( $options['returnKKP'] ) $result = self::toKKP($result);
 		// when key not specified
 		// ===> return multiple items
 		if ( empty($enumKey) ) return $result;
@@ -411,6 +410,42 @@ class Enum {
 		}
 		// done!
 		return $result;
+	}
+
+
+
+
+	/**
+	<fusedoc>
+		<description>
+			convert array-of-object (beans) or array-of-string (key-value pairs) to key-key pairs
+		</description>
+		<io>
+			<in>
+				<structure name="$beansOrKVP">
+					<object name="~id~" type="enum">
+						<string name="type" />
+						<string name="key" />
+						<string name="value" />
+						<string name="remark" />
+					</object>
+				</structure>
+			</in>
+			<out>
+				<structure name="~return~">
+					<string name="~key~" value="~key~" />
+				</structure>
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function toKKP($data) {
+		if ( empty($data) ) return [];
+		// extract keys from data
+		$isArrayOfObject = is_object($data[array_key_first($data)]);
+		$enumKeys = $isArrayOfObject ? array_map(fn($item) => $item->key, $data) : array_keys($data);
+		// done!
+		return array_combine($enumKeys, $enumKeys);
 	}
 
 
