@@ -352,10 +352,13 @@ class Enum {
 		// ===> always parse remark when remark key specified
 		$options['remarkKey'] = $options['remarkKey'] ?? null;
 		$options['parseRemark'] = !empty($options['remarkKey']) ?: $options['parseRemark'] ?? false;
-		// get specific enum item
-		$item = self::get($enumType, $enumKey);
+		// obtain specific enum item
+		$enumBean = self::get($enumType, $enumKey);
+		// when not found
+		// ===> simply return null (or empty array)
+		if ( is_null($enumBean) ) return $options['parseRemark'] ? [] : null;
 		// obtain remark according to locale (when necessary)
-		$enumRemark = class_exists('I18N') ? I18N::convert($item, 'remark') : ( $item->remark ?? null );
+		$enumRemark = class_exists('I18N') ? I18N::convert($enumBean, 'remark') : $enumBean->remark;
 		// when {parseRemark} specified
 		// ===> parse remark as query string
 		if ( $options['parseRemark'] ) parse_str($enumRemark, $enumRemark);
@@ -487,11 +490,11 @@ class Enum {
 		// default options
 		$options['returnKeyWhenNotFound'] = $options['returnKeyWhenNotFound'] ?? true;
 		// load specific item
-		$bean = self::get($enumType, $enumKey, $options);
+		$enumBean = self::get($enumType, $enumKey, $options);
 		// return key or null when not found
-		if ( is_null($bean) ) return $options['returnKeyWhenNotFound'] ? $enumKey : null;
+		if ( is_null($enumBean) ) return $options['returnKeyWhenNotFound'] ? $enumKey : null;
 		// convert language (when necessary)
-		return class_exists('I18N') ? I18N::convert($bean, 'value') : $bean->value;
+		return class_exists('I18N') ? I18N::convert($enumBean, 'value') : $enumBean->value;
 	}
 
 
