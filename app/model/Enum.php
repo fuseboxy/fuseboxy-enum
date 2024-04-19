@@ -382,7 +382,7 @@ class Enum {
 	/**
 	<fusedoc>
 		<description>
-			convert array-of-object (beans) or array-of-string (key-value pairs) to key-key pairs
+			convert array-of-objects (beans) or array-of-strings (key-value pairs) to key-key pairs
 		</description>
 		<io>
 			<in>
@@ -405,8 +405,8 @@ class Enum {
 	*/
 	public static function toKKP($data) {
 		if ( empty($data) ) return [];
-		$isArrayOfObject = is_object($data[array_key_first($data)]);
-		$enumKeys = $isArrayOfObject ? array_map(fn($item) => $item->key, $data) : array_keys($data);
+		$isArrayOfObjects = is_object($data[array_key_first($data)]);
+		$enumKeys = $isArrayOfObjects ? array_map(fn($item) => $item->key, $data) : array_keys($data);
 		return array_combine($enumKeys, $enumKeys);
 	}
 
@@ -416,7 +416,7 @@ class Enum {
 	/**
 	<fusedoc>
 		<description>
-			convert array-of-object (beans) to key-value pairs
+			convert array-of-objects (beans) to key-value pairs
 		</description>
 		<io>
 			<in>
@@ -440,8 +440,8 @@ class Enum {
 	</fusedoc>
 	*/
 	public static function toKVP($beans) {
-		$enumKeys = array_map(fn($item) => $item->key, $beans);
-		$enumValues = array_map(fn($item) => class_exists('I18N') ? I18N::convert($item, 'value') : $item->value, $beans);
+		$enumKeys = array_map(fn($item, $key) => $item->key ?? $key, $beans, array_keys($beans));
+		$enumValues = array_map(fn($item) => class_exists('I18N') ? I18N::convert($item, 'value') : ( $item->value ?? null ), $beans);
 		return array_combine($enumKeys, $enumValues);
 	}
 
